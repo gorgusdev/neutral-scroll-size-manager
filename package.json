@@ -9,8 +9,6 @@
     "url": "https://github.com/gorgusdev/neutral-scroll-size-manager.git"
   },
   "scripts": {
-    "test": "jest && remap-istanbul -i coverage/coverage-final.json -o html-report -t html",
-    "test-watch": "jest --watch",
     "typescript": "tsc",
     "typescript-watch": "tsc -w index.ts",
     "build": "npm run typescript",
