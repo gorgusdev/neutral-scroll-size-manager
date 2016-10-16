@@ -1,0 +1,30 @@
+{
+  "name": "neutral-scroll-size-manager",
+  "version": "0.1.0",
+  "description": "A framework neutral client-side scroll and resize manager",
+  "main": "js/src/index.js",
+  "typings": "js/src/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gorgusdev/neutral-scroll-size-manager.git"
+  },
+  "scripts": {
+    "test": "jest && remap-istanbul -i coverage/coverage-final.json -o html-report -t html",
+    "test-watch": "jest --watch",
+    "typescript": "tsc",
+    "typescript-watch": "tsc -w index.ts",
+    "build": "npm run typescript",
+    "prepublish": "npm run build"
+  },
+  "keywords": [
+    "scroll",
+	"resize"
+  ],
+  "author": "Göran Gustafsson",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^2.0.0"
+  },
+  "dependencies": {
+  }
+}
