@@ -10,13 +10,13 @@
   },
   "scripts": {
     "typescript": "tsc",
-    "typescript-watch": "tsc -w index.ts",
+    "typescript-watch": "tsc -w",
     "build": "npm run typescript",
     "prepublish": "npm run build"
   },
   "keywords": [
     "scroll",
-	"resize"
+    "resize"
   ],
   "author": "Göran Gustafsson",
   "license": "MIT",

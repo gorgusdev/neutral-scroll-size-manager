@@ -185,23 +185,23 @@ Use this method to add an anchor tracker to a scroll tracker. When a resize occu
 if any anchor points should be changed. An anchor tracker is checked by looking at the current anchor class of an `elem`. There
 are 8 different anchor classes provided by the `anchorClasses` argument. Each one indicates how `elem` is anchored to `anchorElem`:
 
-- **topLeft**: `elem` extends above `anchorElem` with its bottom edge along `anchorElem`'s top edge and with both left edges aligned.
-- **topRight**: `elem` extends above `anchorElem` with its bottom edge along `anchorElem`'s top edge and with both right edges aligned.
-- **bottomLeft**: `elem` extends below `anchorElem` with its top edge along `anchorElem`'s bottom edge and with both left edges aligned.
-- **bottomRight**: `elem` extends below `anchorElem` with its top edge along `anchorElem`'s bottom edge and with both right edges aligned.
-- **leftTop**: `elem` extends to the left of `anchorElem` with its right edge along `anchorElem`'s left edge and with both top edges aligned.
-- **leftBottom**: `elem` extends to the left of `anchorElem` with its right edge along `anchorElem`'s left edge and with both bottom edges aligned.
-- **rightTop**: `elem` extends to the right of `anchorElem` with its left edge along `anchorElem`'s right edge and with both top edges aligned.
-- **rightBottom**: `elem` extends the right of `anchorElem` with its left edge along `anchorElem`'s right edge and with both bottom edges aligned.
+- **topLeft**: `elem` extends below `anchorElem` with its top edge along `anchorElem`'s bottom edge and with both left edges aligned.
+- **topRight**: `elem` extends below `anchorElem` with its top edge along `anchorElem`'s bottom edge and with both right edges aligned.
+- **bottomLeft**: `elem` extends above `anchorElem` with its bottom edge along `anchorElem`'s top edge and with both left edges aligned.
+- **bottomRight**: `elem` extends above `anchorElem` with its bottom edge along `anchorElem`'s top edge and with both right edges aligned.
+- **leftTop**: `elem` extends to the right of `anchorElem` with its left edge along `anchorElem`'s right edge and with both top edges aligned.
+- **leftBottom**: `elem` extends the right of `anchorElem` with its left edge along `anchorElem`'s right edge and with both bottom edges aligned.
+- **rightTop**: `elem` extends to the left of `anchorElem` with its right edge along `anchorElem`'s left edge and with both top edges aligned.
+- **rightBottom**: `elem` extends to the left of `anchorElem` with its right edge along `anchorElem`'s left edge and with both bottom edges aligned.
 
 Based on these positions the visible area of `elem` inside the scroll tracker bounding box is calculated for each valid class.
 Valid classes are determined by grouping the classes into two groups and only looking at classes in the same group as the group that
 the current class is in. The first group contains: `topLeft`, `topRight`, `bottomLeft` and `bottomRight`. The second group are the
 remaining four classes: `leftTop`, `leftBottom`, `rightTop` and `rightBottom`.
 
-The anchor class with the largest visible area is selected as the best anchor class. If the selected anchor class isn't the current
-anchor class the `callback` function is called to notify the application. It's up to the application to make any style changes to match
-the anchor class.
+The anchor class with the largest visible area is selected as the best anchor class. If no anchor class is strictly better than the others the
+value of `anchorclass` is used. If the selected anchor class isn't the current anchor class the `callback` function is called to notify the
+application. It's up to the application to make any style changes to match the anchor class.
 
 To remove an anchor tracker use the function returned from this method.
 

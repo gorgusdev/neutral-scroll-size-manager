@@ -47,6 +47,10 @@ interface ScrollTrackerRoot {
 	top: number;
 	width: number;
 	height: number;
+	stackedLeft: number;
+	stackedTop: number;
+	stackedRight: number;
+	stackedBottom: number;
 	canUseFixed: boolean;
 	unregisterListener: () => void;
 	changeListeners: ScrollChangeListener[];
@@ -125,7 +129,6 @@ export class ScrollSizeManager {
 
 	startResizeTracking() {
 		this.unregisterResizeListener = domUtils.registerEventListener(window, 'resize', () => {
-			//console.log('SSM: Resize');
 			if(!this.resizeTimerId) {
 				this.resizeTimerId = setTimeout(() => {
 					if(this.resizeDuringTimer) {
@@ -161,7 +164,6 @@ export class ScrollSizeManager {
 		let tracker: ScrollTrackerRoot = this.createTrackerRoot(key, elem);
 		if(tracker.elem) {
 			tracker.unregisterListener = domUtils.registerEventListener(tracker.elem, 'scroll', (event: Event) => {
-				//console.log('SSM: Scroll');
 				let target = event.target || event.srcElement;
 				if((target === tracker.elem) || ((!target || (target === document)) && (tracker.elem === window))) {
 					this.updateScroll(tracker);
@@ -171,7 +173,6 @@ export class ScrollSizeManager {
 		if(tracker.elem === window) {
 			tracker.canUseFixed = true;
 		}
-		//console.log('SSM: addScrollTracker');
 		this.updateResize(false);
 		this.updateScroll(tracker);
 	}
@@ -196,24 +197,52 @@ export class ScrollSizeManager {
 		};
 	}
 
-	addTopStacker(key: string, baseElem: Element, stackElem: HTMLElement, limiterSelector: string, limiterSkipCount: number, stackHeight: string|number, canUseFixed: boolean, trackOffset: boolean, callback: StackerCallback): () => void {
+	addTopStacker(key: string, baseElem: Element, stackElem: HTMLElement,
+			limiterSelector: string, limiterSkipCount: number,
+			stackHeight: string|number, canUseFixed: boolean,
+			trackOffset: boolean, callback: StackerCallback): () => void {
 		return this.addStacker(key, baseElem, stackElem, limiterSelector, limiterSkipCount, 0, stackHeight, canUseFixed, trackOffset, callback, StackerLocation.TOP);
 	}
 
-	addBottomStacker(key: string, baseElem: Element, stackElem: HTMLElement, limiterSelector: string, limiterSkipCount: number, stackHeight: string|number, canUseFixed: boolean, trackOffset: boolean, callback: StackerCallback): () => void {
+	addBottomStacker(key: string, baseElem: Element, stackElem: HTMLElement,
+			limiterSelector: string, limiterSkipCount: number,
+			stackHeight: string|number, canUseFixed: boolean,
+			trackOffset: boolean, callback: StackerCallback): () => void {
 		return this.addStacker(key, baseElem, stackElem, limiterSelector, limiterSkipCount, 0, stackHeight, canUseFixed, trackOffset, callback, StackerLocation.BOTTOM);
 	}
 
-	addLeftStacker(key: string, baseElem: Element, stackElem: HTMLElement, limiterSelector: string, limiterSkipCount: number, stackWidth: string|number, canUseFixed: boolean, trackOffset: boolean, callback: StackerCallback): () => void {
+	addLeftStacker(key: string, baseElem: Element, stackElem: HTMLElement,
+			limiterSelector: string, limiterSkipCount: number,
+			stackWidth: string|number, canUseFixed: boolean,
+			trackOffset: boolean, callback: StackerCallback): () => void {
 		return this.addStacker(key, baseElem, stackElem, limiterSelector, limiterSkipCount, stackWidth, 0, canUseFixed, trackOffset, callback, StackerLocation.LEFT);
 	}
 
-	addRightStacker(key: string, baseElem: Element, stackElem: HTMLElement, limiterSelector: string, limiterSkipCount: number, stackWidth: string|number, canUseFixed: boolean, trackOffset: boolean, callback: StackerCallback): () => void {
+	addRightStacker(key: string, baseElem: Element, stackElem: HTMLElement,
+			limiterSelector: string, limiterSkipCount: number,
+			stackWidth: string|number, canUseFixed: boolean,
+			trackOffset: boolean, callback: StackerCallback): () => void {
 		return this.addStacker(key, baseElem, stackElem, limiterSelector, limiterSkipCount, stackWidth, 0, canUseFixed, trackOffset, callback, StackerLocation.RIGHT);
 	}
 
-	private addStacker(key: string, baseElem: Element, stackElem: HTMLElement, limiterSelector: string, limiterSkipCount: number, stackWidth: string|number, stackHeight: string|number, canUseFixed: boolean, trackOffset: boolean, callback: StackerCallback, stackerLocation: StackerLocation): () => void {
+	private addStacker(key: string, baseElem: Element, stackElem: HTMLElement,
+			limiterSelector: string, limiterSkipCount: number,
+			stackWidth: string|number, stackHeight: string|number,
+			canUseFixed: boolean, trackOffset: boolean, callback: StackerCallback,
+			stackerLocation: StackerLocation): () => void {
+		
 		let tracker: ScrollTrackerRoot = this.createTrackerRoot(key, null);
+		if(tracker.elem === window) {
+			tracker.left = (window.pageXOffset || document.documentElement.scrollLeft);
+			tracker.top = (window.pageYOffset || document.documentElement.scrollTop);
+		} else {
+			let elem = tracker.elem;
+			tracker.left = elem.scrollLeft;
+			tracker.top = elem.scrollTop;
+		}
+		let winLeft = tracker.left;
+		let winTop = tracker.top;
+
 		let limitElem = domUtils.findParentMatchingSelector(baseElem, limiterSelector);
 		while(limiterSkipCount > 0) {
 			let tmp = domUtils.findParentMatchingSelector(limitElem.parentElement, limiterSelector);
@@ -222,13 +251,14 @@ export class ScrollSizeManager {
 			}
 			limiterSkipCount -= 1;
 		}
+		let limiter = this.createLimiter(tracker, limitElem);
 		let width = 0;
 		if(typeof stackWidth === 'string') {
 			let cssValue: string = domUtils.getStyleSheetValue(stackWidth, 'width');
 			if(cssValue && (cssValue.substr(cssValue.length - 2) === 'px')) {
 				width = parseInt(cssValue);
 			} else {
-				console.error('Stacker CSS width value is not in pixels.');
+				throw Error('Stacker CSS width value is not in pixels.');
 			}
 		} else if(typeof stackWidth === 'number') {
 			width = stackWidth;
@@ -239,18 +269,20 @@ export class ScrollSizeManager {
 			if(cssValue && (cssValue.substr(cssValue.length - 2) === 'px')) {
 				height = parseInt(cssValue);
 			} else {
-				console.error('Stacker CSS height value is not in pixels.');
+				throw Error('Stacker CSS height value is not in pixels.');
 			}
 		} else if(typeof stackHeight === 'number') {
 			height = stackHeight;
 		}
+		
+		let rect = baseElem.getBoundingClientRect();
 		let stacker: Stacker = {
-			limiter: this.createLimiter(tracker, limitElem),
+			limiter: limiter,
 			baseElem: baseElem,
-			baseLeft: 0,
-			baseTop: 0,
-			baseRight: 0,
-			baseBottom: 0,
+			baseLeft: winLeft + rect.left,
+			baseTop: winTop + rect.top,
+			baseRight: winLeft + rect.right,
+			baseBottom: winTop + rect.bottom,
 			stackElem: stackElem,
 			stackWidth: width,
 			stackHeight: height,
@@ -260,21 +292,27 @@ export class ScrollSizeManager {
 			offset: 0,
 			callback: callback
 		};
+
 		if(tracker) {
 			switch(stackerLocation) {
 				case StackerLocation.TOP:
 					tracker.topStackers.push(stacker);
+					tracker.topStackers.sort(this.sortStackerAscending);
 					break;
 				case StackerLocation.BOTTOM:
 					tracker.bottomStackers.push(stacker);
+					tracker.bottomStackers.sort(this.sortStackerDescending);
 					break;
 				case StackerLocation.LEFT:
 					tracker.leftStackers.push(stacker);
+					tracker.leftStackers.sort(this.sortStackerAscending);
 					break;
 				case StackerLocation.RIGHT:
 					tracker.rightStackers.push(stacker);
+					tracker.rightStackers.sort(this.sortStackerDescending);
 					break;
 			}
+			this.updateResize(false);
 		}
 		return () => {
 			this.dropLimiter(tracker, stacker.limiter);
@@ -295,6 +333,24 @@ export class ScrollSizeManager {
 		}
 	}
 
+	private sortStackerAscending(s1: Stacker, s2: Stacker): number {
+		if(s1.baseTop < s2.baseTop) {
+			return -1;
+		} else if(s1.baseTop > s2.baseTop) {
+			return 1;
+		}
+		return 0;
+	}
+
+	private sortStackerDescending(s1: Stacker, s2: Stacker): number {
+		if(s1.baseTop > s2.baseTop) {
+			return -1;
+		} else if(s1.baseTop < s2.baseTop) {
+			return 1;
+		}
+		return 0;
+	}
+	
 	private createTrackerRoot(key: string, elem: any): ScrollTrackerRoot {
 		let tracker: ScrollTrackerRoot = this.scrollTrackerRoots[key];
 		if(tracker) {
@@ -312,6 +368,10 @@ export class ScrollSizeManager {
 			top: 0,
 			width: 0,
 			height: 0,
+			stackedLeft: 0,
+			stackedTop: 0,
+			stackedRight: 0,
+			stackedBottom: 0,
 			canUseFixed: false,
 			unregisterListener: null,
 			changeListeners: [],
@@ -330,7 +390,7 @@ export class ScrollSizeManager {
 	private createLimiter(tracker: ScrollTrackerRoot, elem: Element): Limiter {
 		let limiters: Limiter[] = tracker.limiters;
 		for(let n = 0; n < limiters.length; n++) {
-			if(limiters[n].elem == elem) {
+			if(limiters[n].elem === elem) {
 				limiters[n].refCount += 1;
 				return limiters[n];
 			}
@@ -421,7 +481,7 @@ export class ScrollSizeManager {
 				limiter.right = winLeft + rect.right;
 				limiter.bottom = winTop + rect.bottom;
 			}
-			let offsetY = 0;
+			let offsetTop = 0;
 			let stackers: Stacker[] = tracker.topStackers;
 			count = stackers.length;
 			for(let n = 0; n < count; n++) {
@@ -431,9 +491,9 @@ export class ScrollSizeManager {
 				stacker.baseTop = winTop + rect.top;
 				stacker.baseRight = winLeft + rect.right;
 				stacker.baseBottom = winTop + rect.bottom;
-				offsetY = offsetY + this.updateTopStacker(stacker, offsetY, winTop, winHeight, canUseFixed, hideNonFixed);
+				offsetTop = offsetTop + this.updateTopStacker(stacker, offsetTop, winTop, winHeight, canUseFixed, hideNonFixed);
 			}
-			offsetY = 0;
+			let offsetBottom = 0;
 			stackers = tracker.bottomStackers;
 			count = stackers.length;
 			for(let n = 0; n < count; n++) {
@@ -443,9 +503,9 @@ export class ScrollSizeManager {
 				stacker.baseTop = winTop + rect.top;
 				stacker.baseRight = winLeft + rect.right;
 				stacker.baseBottom = winTop + rect.bottom;
-				offsetY = offsetY + this.updateBottomStacker(stacker, offsetY, winTop, winHeight, canUseFixed, hideNonFixed);
+				offsetBottom = offsetBottom + this.updateBottomStacker(stacker, offsetBottom, winTop, winHeight, canUseFixed, hideNonFixed);
 			}
-			let offsetX = 0;
+			let offsetLeft = 0;
 			stackers = tracker.leftStackers;
 			count = stackers.length;
 			for(let n = 0; n < count; n++) {
@@ -455,9 +515,9 @@ export class ScrollSizeManager {
 				stacker.baseTop = winTop + rect.top;
 				stacker.baseRight = winLeft + rect.right;
 				stacker.baseBottom = winTop + rect.bottom;
-				offsetX = offsetX + this.updateLeftStacker(stacker, offsetX, winLeft, winWidth, canUseFixed, hideNonFixed);
+				offsetLeft = offsetLeft + this.updateLeftStacker(stacker, offsetLeft, winLeft, winWidth, canUseFixed, hideNonFixed);
 			}
-			offsetX = 0;
+			let offsetRight = 0;
 			stackers = tracker.rightStackers;
 			count = stackers.length;
 			for(let n = 0; n < count; n++) {
@@ -467,14 +527,35 @@ export class ScrollSizeManager {
 				stacker.baseTop = winTop + rect.top;
 				stacker.baseRight = winLeft + rect.right;
 				stacker.baseBottom = winTop + rect.bottom;
-				offsetX = offsetX + this.updateRightStacker(stacker, offsetX, winLeft, winWidth, canUseFixed, hideNonFixed);
+				offsetRight = offsetRight + this.updateRightStacker(stacker, offsetRight, winLeft, winWidth, canUseFixed, hideNonFixed);
 			}
-			let winRight = winLeft + winWidth;
-			let winBottom = winTop + winHeight;
+			tracker.stackedLeft = offsetLeft;
+			tracker.stackedTop = offsetTop;
+			tracker.stackedRight = offsetRight;
+			tracker.stackedBottom = offsetBottom;
+
 			let anchorTrackers = tracker.anchorTrackers;
 			count = anchorTrackers.length;
-			for(let n = 0; n < count; n++) {
-				this.updateAnchorTracker(anchorTrackers[n], winLeft, winTop, winRight, winBottom);
+			if(count > 0) {
+				let boxLeft: number;
+				let boxTop: number;
+				let boxRight: number;
+				let boxBottom: number;
+				if(tracker.elem === window) {
+					boxLeft = tracker.stackedLeft;
+					boxTop = tracker.stackedTop;
+					boxRight = winWidth - tracker.stackedRight;
+					boxBottom = winHeight - tracker.stackedBottom;
+				} else {
+					let boxRect = tracker.elem.getBoundingClientRect();
+					boxLeft = boxRect.left + tracker.stackedLeft;
+					boxTop = boxRect.top + tracker.stackedTop;
+					boxRight = boxRect.right - tracker.stackedRight;
+					boxBottom = boxRect.bottom - tracker.stackedBottom;
+				}
+				for(let n = 0; n < count; n++) {
+					this.updateAnchorTracker(anchorTrackers[n], boxLeft, boxTop, boxRight, boxBottom);
+				}
 			}
 		}
 		let overflowTrackers = this.overflowTrackers;
@@ -522,36 +603,63 @@ export class ScrollSizeManager {
 		if(oldTop !== winTop) {
 			let stackers: Stacker[] = tracker.topStackers;
 			let count = stackers.length;
-			let offsetY = 0;
+			let offsetTop = 0;
 			for(let n = 0; n < count; n++) {
 				let stacker = stackers[n];
-				offsetY = offsetY + this.updateTopStacker(stacker, offsetY, winTop, winHeight, canUseFixed, hideNonFixed);
+				offsetTop = offsetTop + this.updateTopStacker(stacker, offsetTop, winTop, winHeight, canUseFixed, hideNonFixed);
 			}
 			stackers = tracker.bottomStackers;
 			count = stackers.length;
-			offsetY = 0;
+			let offsetBottom = 0;
 			for(let n = 0; n < count; n++) {
 				let stacker = stackers[n];
-				offsetY = offsetY + this.updateBottomStacker(stacker, offsetY, winTop, winHeight, canUseFixed, hideNonFixed);
+				offsetBottom = offsetBottom + this.updateBottomStacker(stacker, offsetBottom, winTop, winHeight, canUseFixed, hideNonFixed);
 			}
+			tracker.stackedTop = offsetTop;
+			tracker.stackedBottom = offsetBottom;
 		}
 		if(oldLeft !== winLeft) {
 			let stackers: Stacker[] = tracker.leftStackers;
 			let count = stackers.length;
-			let offsetX = 0;
+			let offsetLeft = 0;
 			for(let n = 0; n < count; n++) {
 				let stacker = stackers[n];
-				offsetX = offsetX + this.updateLeftStacker(stacker, offsetX, winLeft, winWidth, canUseFixed, hideNonFixed);
+				offsetLeft = offsetLeft + this.updateLeftStacker(stacker, offsetLeft, winLeft, winWidth, canUseFixed, hideNonFixed);
 			}
 			stackers = tracker.rightStackers;
 			count = stackers.length;
-			offsetX = 0;
+			let offsetRight = 0;
 			for(let n = 0; n < count; n++) {
 				let stacker = stackers[n];
-				offsetX = offsetX + this.updateRightStacker(stacker, offsetX, winLeft, winWidth, canUseFixed, hideNonFixed);
+				offsetRight = offsetRight + this.updateRightStacker(stacker, offsetRight, winLeft, winWidth, canUseFixed, hideNonFixed);
 			}
+			tracker.stackedLeft = offsetLeft;
+			tracker.stackedRight = offsetRight;
 		}
 		if((oldTop !== winTop) || (oldLeft !== winLeft)) {
+			let anchorTrackers = tracker.anchorTrackers;
+			count = anchorTrackers.length;
+			if(count > 0) {
+				let boxLeft: number;
+				let boxTop: number;
+				let boxRight: number;
+				let boxBottom: number;
+				if(tracker.elem === window) {
+					boxLeft = tracker.stackedLeft;
+					boxTop = tracker.stackedTop;
+					boxRight = winWidth - tracker.stackedRight;
+					boxBottom = winHeight - tracker.stackedBottom;
+				} else {
+					let boxRect = tracker.elem.getBoundingClientRect();
+					boxLeft = boxRect.left + tracker.stackedLeft;
+					boxTop = boxRect.top + tracker.stackedTop;
+					boxRight = boxRect.right - tracker.stackedRight;
+					boxBottom = boxRect.bottom - tracker.stackedBottom;
+				}
+				for(let n = 0; n < count; n++) {
+					this.updateAnchorTracker(anchorTrackers[n], boxLeft, boxTop, boxRight, boxBottom);
+				}
+			}
 			if(this.scrollDoneTimerId) {
 				clearTimeout(this.scrollDoneTimerId);
 			}
@@ -749,8 +857,8 @@ export class ScrollSizeManager {
 		let anchorRect = anchorTracker.anchorElem.getBoundingClientRect();
 		let defaultClass = anchorTracker.defaultClass;
 		let classes = anchorTracker.classes;
-		let elemWidth = elemRect.right - elemRect.left + 1;
-		let elemHeight = elemRect.bottom - elemRect.top + 1;
+		let elemWidth = elemRect.right - elemRect.left;
+		let elemHeight = elemRect.bottom - elemRect.top;
 		let currentClass: string;
 		if((defaultClass === classes.topLeft)
 				|| (defaultClass === classes.topRight)
@@ -760,28 +868,92 @@ export class ScrollSizeManager {
 			let topRight = this.visibleArea(anchorRect.right - elemWidth, anchorRect.bottom, anchorRect.right, anchorRect.bottom + elemHeight, winLeft, winTop, winRight, winBottom);
 			let bottomLeft = this.visibleArea(anchorRect.left, anchorRect.top - elemHeight, anchorRect.left + elemWidth, anchorRect.top, winLeft, winTop, winRight, winBottom);
 			let bottomRight = this.visibleArea(anchorRect.right - elemWidth, anchorRect.top - elemHeight, anchorRect.right, anchorRect.top, winLeft, winTop, winRight, winBottom);
-			if((topLeft >= topRight) && (topLeft >= bottomLeft) && (topLeft >= bottomRight)) {
-				currentClass = classes.topLeft;
-			} else if((topRight >= topLeft) && (topRight >= bottomLeft) && (topRight >= bottomRight)) {
-				currentClass = classes.topRight;
-			} else if((bottomLeft >= topLeft) && (bottomLeft >= topRight) && (bottomLeft >= bottomRight)) {
-				currentClass = classes.bottomLeft;
+			if(defaultClass === classes.topLeft) {
+				if((topLeft >= topRight) && (topLeft >= bottomLeft) && (topLeft >= bottomRight)) {
+					currentClass = classes.topLeft;
+				} else if((bottomLeft >= topLeft) && (bottomLeft >= topRight) && (bottomLeft >= bottomRight)) {
+					currentClass = classes.bottomLeft;
+				} else if((topRight >= topLeft) && (topRight >= bottomLeft) && (topRight >= bottomRight)) {
+					currentClass = classes.topRight;
+				} else {
+					currentClass = classes.bottomRight;
+				}
+			} else if(defaultClass === classes.topRight) {
+				if((topRight >= topLeft) && (topRight >= bottomLeft) && (topRight >= bottomRight)) {
+					currentClass = classes.topRight;
+				} else if((bottomRight >= topLeft) && (bottomRight >= topRight) && (bottomRight >= bottomLeft)) {
+					currentClass = classes.bottomRight;
+				} else if((topLeft >= topRight) && (topLeft >= bottomLeft) && (topLeft >= bottomRight)) {
+					currentClass = classes.topLeft;
+				} else {
+					currentClass = classes.bottomLeft;
+				}
+			} else if(defaultClass === classes.bottomLeft) {
+				if((bottomLeft >= topLeft) && (bottomLeft >= topRight) && (bottomLeft >= bottomRight)) {
+					currentClass = classes.bottomLeft;
+				} else if((topLeft >= topRight) && (topLeft >= bottomLeft) && (topLeft >= bottomRight)) {
+					currentClass = classes.topLeft;
+				} else if((bottomRight >= topLeft) && (bottomRight >= topRight) && (bottomRight >= bottomLeft)) {
+					currentClass = classes.bottomRight;
+				} else {
+					currentClass = classes.topRight;
+				}
 			} else {
-				currentClass = classes.bottomRight;
+				if((bottomRight >= topLeft) && (bottomRight >= topRight) && (bottomRight >= bottomLeft)) {
+					currentClass = classes.bottomRight;
+				} else if((topRight >= topLeft) && (topRight >= bottomLeft) && (topRight >= bottomRight)) {
+					currentClass = classes.topRight;
+				} else if((bottomLeft >= topLeft) && (bottomLeft >= topRight) && (bottomLeft >= bottomRight)) {
+					currentClass = classes.bottomLeft;
+				} else {
+					currentClass = classes.topLeft;
+				}
 			}
 		} else {
 			let leftTop = this.visibleArea(anchorRect.right, anchorRect.top, anchorRect.right + elemWidth, anchorRect.top + elemHeight, winLeft, winTop, winRight, winBottom);
 			let leftBottom = this.visibleArea(anchorRect.right, anchorRect.bottom - elemHeight, anchorRect.right + elemWidth, anchorRect.bottom, winLeft, winTop, winRight, winBottom);
 			let rightTop = this.visibleArea(anchorRect.left - elemWidth, anchorRect.top, anchorRect.left, anchorRect.top + elemHeight, winLeft, winTop, winRight, winBottom);
 			let rightBottom = this.visibleArea(anchorRect.left - elemWidth, anchorRect.bottom - elemHeight, anchorRect.left, anchorRect.bottom, winLeft, winTop, winRight, winBottom);
-			if((leftTop >= leftBottom) && (leftTop >= rightTop) && (leftTop >= rightBottom)) {
-				currentClass = classes.leftTop;
-			} else if((leftBottom >= leftTop) && (leftBottom >= rightTop) && (leftBottom >= rightBottom)) {
-				currentClass = classes.leftBottom;
-			} else if((rightTop >= leftTop) && (rightTop >= leftBottom) && (rightTop >= rightBottom)) {
-				currentClass = classes.rightTop;
+			if(defaultClass === classes.leftTop) {
+				if((leftTop >= rightTop) && (leftTop >= leftBottom) && (leftTop >= rightBottom)) {
+					currentClass = classes.leftTop;
+				} else if((leftBottom >= leftTop) && (leftBottom >= rightTop) && (leftBottom >= rightBottom)) {
+					currentClass = classes.leftBottom;
+				} else if((rightTop >= leftTop) && (rightTop >= leftBottom) && (rightTop >= rightBottom)) {
+					currentClass = classes.rightTop;
+				} else {
+					currentClass = classes.rightBottom;
+				}
+			} else if(defaultClass === classes.rightTop) {
+				if((rightTop >= leftTop) && (rightTop >= leftBottom) && (rightTop >= rightBottom)) {
+					currentClass = classes.rightTop;
+				} else if((rightBottom >= leftTop) && (rightBottom >= rightTop) && (rightBottom >= leftBottom)) {
+					currentClass = classes.rightBottom;
+				} else if((leftTop >= rightTop) && (leftTop >= leftBottom) && (leftTop >= rightBottom)) {
+					currentClass = classes.leftTop;
+				} else {
+					currentClass = classes.leftBottom;
+				}
+			} else if(defaultClass === classes.leftBottom) {
+				if((leftBottom >= leftTop) && (leftBottom >= rightTop) && (leftBottom >= rightBottom)) {
+					currentClass = classes.leftBottom;
+				} else if((leftTop >= rightTop) && (leftTop >= leftBottom) && (leftTop >= rightBottom)) {
+					currentClass = classes.leftTop;
+				} else if((rightBottom >= leftTop) && (rightBottom >= rightTop) && (rightBottom >= leftBottom)) {
+					currentClass = classes.rightBottom;
+				} else {
+					currentClass = classes.rightTop;
+				}
 			} else {
-				currentClass = classes.rightBottom;
+				if((rightBottom >= leftTop) && (rightBottom >= rightTop) && (rightBottom >= leftBottom)) {
+					currentClass = classes.rightBottom;
+				} else if((rightTop >= leftTop) && (rightTop >= leftBottom) && (rightTop >= rightBottom)) {
+					currentClass = classes.rightTop;
+				} else if((leftBottom >= leftTop) && (leftBottom >= rightTop) && (leftBottom >= rightBottom)) {
+					currentClass = classes.leftBottom;
+				} else {
+					currentClass = classes.leftTop;
+				}
 			}
 		}
 		if(currentClass !== anchorTracker.currentClass) {

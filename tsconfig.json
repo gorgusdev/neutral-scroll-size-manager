@@ -9,6 +9,7 @@
 		"outDir": "js/"
 	},
 	"files": [
-		"./src/index.ts"
+		"./src/index.ts",
+		"./__debug__/debug.ts"
 	]
 }

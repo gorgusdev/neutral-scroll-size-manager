@@ -1,5 +1,6 @@
 
 // Polyfill the matches method on DOM elements.
+// Code from https://developer.mozilla.org/en-US/docs/Web/API/Element/matches
 if (!Element.prototype.matches) {
 	Element.prototype.matches = 
 		(<any>Element.prototype).matchesSelector || 
@@ -17,11 +18,24 @@ if (!Element.prototype.matches) {
 		};
 }
 
+// Detect support for passive event listeners.
+// Code from Modernizr
+let registerEventOptions: boolean|{passive: boolean} = false;
+try {
+	var opts = Object.defineProperty({}, 'passive', {
+		get: function() {
+			registerEventOptions = { passive: true };
+		}
+	});
+	window.addEventListener('dummy', null, opts);
+} catch(e) {
+}
+
 export function registerEventListener(element: any, event: string, callback: (event: Event) => void): () => void {
 	if(element.addEventListener) {
-		element.addEventListener(event, callback, false);
+		element.addEventListener(event, callback, registerEventOptions);
 		return function unregisterEvent() {
-			element.removeEventListener(event, callback, false);
+			element.removeEventListener(event, callback, registerEventOptions);
 		};
 	} else if(element.attachEvent) {
 		element.attachEvent('on' + event, callback);
