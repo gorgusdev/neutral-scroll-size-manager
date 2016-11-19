@@ -47,12 +47,16 @@ interface ScrollTrackerRoot {
 	top: number;
 	width: number;
 	height: number;
-	stackedLeft: number;
+	fixedTop: number;
+	fixedRight: number;
+	fixedBottom: number;
+	fixedLeft: number;
 	stackedTop: number;
 	stackedRight: number;
 	stackedBottom: number;
+	stackedLeft: number;
 	canUseFixed: boolean;
-	unregisterListener: () => void;
+	unregisterListener?: () => void;
 	changeListeners: ScrollChangeListener[];
 	limiters: Limiter[];
 	topStackers: Stacker[];
@@ -71,7 +75,8 @@ export interface OverflowCallback {
 }
 
 interface OverflowTracker {
-	elem: Element;
+	containerElem: Element;
+	elem: HTMLElement;
 	overflowWidth: boolean;
 	overflowHeight: boolean;
 	overflowed: boolean;
@@ -115,7 +120,7 @@ export class ScrollSizeManager {
 	private checkResizeTimerId: any;
 	private unregisterResizeListener: () => void;
 
-	hideNonFixed: boolean;
+	public hideNonFixed: boolean;
 
 	constructor() {
 		this.scrollTrackerRoots = {};
@@ -127,7 +132,7 @@ export class ScrollSizeManager {
 		this.hideNonFixed = /msie|trident|edge/i.test(navigator.userAgent);
 	}
 
-	startResizeTracking() {
+	public startResizeTracking() {
 		this.unregisterResizeListener = domUtils.registerEventListener(window, 'resize', () => {
 			if(!this.resizeTimerId) {
 				this.resizeTimerId = setTimeout(() => {
@@ -144,13 +149,13 @@ export class ScrollSizeManager {
 		});
 	}
 
-	stopResizeTracking() {
+	public stopResizeTracking() {
 		if(this.unregisterResizeListener) {
 			this.unregisterResizeListener();
 		}
 	}
 
-	checkResizeFromStateChange() {
+	public checkResizeFromStateChange() {
 		if(this.checkResizeTimerId) {
 			return;
 		}
@@ -160,7 +165,13 @@ export class ScrollSizeManager {
 		}, 0);
 	}
 
-	addScrollTracker(key: string, elem: any) {
+	public addScrollTracker(
+				key: string,
+				elem: any,
+				fixedTopOffset?: string | number,
+				fixedRightOffset?: string | number,
+				fixedBottomOffset?: string | number,
+				fixedLeftOffset?: string | number) {
 		let tracker: ScrollTrackerRoot = this.createTrackerRoot(key, elem);
 		if(tracker.elem) {
 			tracker.unregisterListener = domUtils.registerEventListener(tracker.elem, 'scroll', (event: Event) => {
@@ -173,11 +184,23 @@ export class ScrollSizeManager {
 		if(tracker.elem === window) {
 			tracker.canUseFixed = true;
 		}
+		if(fixedTopOffset) {
+			tracker.fixedTop = this.getValueOrCSSProp(fixedTopOffset, 'height');
+		}
+		if(fixedRightOffset) {
+			tracker.fixedRight = this.getValueOrCSSProp(fixedRightOffset, 'width');
+		}
+		if(fixedBottomOffset) {
+			tracker.fixedBottom = this.getValueOrCSSProp(fixedBottomOffset, 'height');
+		}
+		if(fixedLeftOffset) {
+			tracker.fixedLeft = this.getValueOrCSSProp(fixedLeftOffset, 'width');
+		}
 		this.updateResize(false);
 		this.updateScroll(tracker);
 	}
 
-	removeTracker(key: string) {
+	public removeTracker(key: string) {
 		let tracker: ScrollTrackerRoot = this.scrollTrackerRoots[key];
 		if(tracker) {
 			if(tracker.unregisterListener) {
@@ -187,7 +210,7 @@ export class ScrollSizeManager {
 		}
 	}
 
-	addScrollChangeListener(key: string, callback: ScrollChangeListener): () => void {
+	public addScrollChangeListener(key: string, callback: ScrollChangeListener): () => void {
 		let tracker: ScrollTrackerRoot = this.scrollTrackerRoots[key];
 		if(tracker) {
 			tracker.changeListeners.push(callback);
@@ -197,40 +220,71 @@ export class ScrollSizeManager {
 		};
 	}
 
-	addTopStacker(key: string, baseElem: Element, stackElem: HTMLElement,
-			limiterSelector: string, limiterSkipCount: number,
-			stackHeight: string|number, canUseFixed: boolean,
-			trackOffset: boolean, callback: StackerCallback): () => void {
+	public addTopStacker(
+			key: string,
+			baseElem: Element,
+			stackElem: HTMLElement,
+			limiterSelector: string,
+			limiterSkipCount: number,
+			stackHeight: string|number,
+			canUseFixed: boolean,
+			trackOffset: boolean,
+			callback: StackerCallback): () => void {
 		return this.addStacker(key, baseElem, stackElem, limiterSelector, limiterSkipCount, 0, stackHeight, canUseFixed, trackOffset, callback, StackerLocation.TOP);
 	}
 
-	addBottomStacker(key: string, baseElem: Element, stackElem: HTMLElement,
-			limiterSelector: string, limiterSkipCount: number,
-			stackHeight: string|number, canUseFixed: boolean,
-			trackOffset: boolean, callback: StackerCallback): () => void {
+	public addBottomStacker(
+			key: string,
+			baseElem: Element,
+			stackElem: HTMLElement,
+			limiterSelector: string,
+			limiterSkipCount: number,
+			stackHeight: string|number,
+			canUseFixed: boolean,
+			trackOffset: boolean,
+			callback: StackerCallback): () => void {
 		return this.addStacker(key, baseElem, stackElem, limiterSelector, limiterSkipCount, 0, stackHeight, canUseFixed, trackOffset, callback, StackerLocation.BOTTOM);
 	}
 
-	addLeftStacker(key: string, baseElem: Element, stackElem: HTMLElement,
-			limiterSelector: string, limiterSkipCount: number,
-			stackWidth: string|number, canUseFixed: boolean,
-			trackOffset: boolean, callback: StackerCallback): () => void {
+	public addLeftStacker(
+			key: string,
+			baseElem: Element,
+			stackElem: HTMLElement,
+			limiterSelector: string,
+			limiterSkipCount: number,
+			stackWidth: string|number,
+			canUseFixed: boolean,
+			trackOffset: boolean,
+			callback: StackerCallback): () => void {
 		return this.addStacker(key, baseElem, stackElem, limiterSelector, limiterSkipCount, stackWidth, 0, canUseFixed, trackOffset, callback, StackerLocation.LEFT);
 	}
 
-	addRightStacker(key: string, baseElem: Element, stackElem: HTMLElement,
-			limiterSelector: string, limiterSkipCount: number,
-			stackWidth: string|number, canUseFixed: boolean,
-			trackOffset: boolean, callback: StackerCallback): () => void {
+	public addRightStacker(
+			key: string,
+			baseElem: Element,
+			stackElem: HTMLElement,
+			limiterSelector: string,
+			limiterSkipCount: number,
+			stackWidth: string|number,
+			canUseFixed: boolean,
+			trackOffset: boolean,
+			callback: StackerCallback): () => void {
 		return this.addStacker(key, baseElem, stackElem, limiterSelector, limiterSkipCount, stackWidth, 0, canUseFixed, trackOffset, callback, StackerLocation.RIGHT);
 	}
 
-	private addStacker(key: string, baseElem: Element, stackElem: HTMLElement,
-			limiterSelector: string, limiterSkipCount: number,
-			stackWidth: string|number, stackHeight: string|number,
-			canUseFixed: boolean, trackOffset: boolean, callback: StackerCallback,
+	private addStacker(
+			key: string,
+			baseElem: Element,
+			stackElem: HTMLElement,
+			limiterSelector: string,
+			limiterSkipCount: number,
+			stackWidth: string|number,
+			stackHeight: string|number,
+			canUseFixed: boolean,
+			trackOffset: boolean,
+			callback: StackerCallback,
 			stackerLocation: StackerLocation): () => void {
-		
+
 		let tracker: ScrollTrackerRoot = this.createTrackerRoot(key, null);
 		if(tracker.elem === window) {
 			tracker.left = (window.pageXOffset || document.documentElement.scrollLeft);
@@ -244,37 +298,20 @@ export class ScrollSizeManager {
 		let winTop = tracker.top;
 
 		let limitElem = domUtils.findParentMatchingSelector(baseElem, limiterSelector);
-		while(limiterSkipCount > 0) {
+		let count = 0;
+		while(limitElem && (count < limiterSkipCount)) {
 			let tmp = domUtils.findParentMatchingSelector(limitElem.parentElement, limiterSelector);
 			if(tmp) {
 				limitElem = tmp;
 			}
-			limiterSkipCount -= 1;
+			count += 1;
+		}
+		if(!limitElem) {
+			throw new Error('Missing limiter element with selector "' + limiterSelector + '" skipped ' + limiterSkipCount + ' times');
 		}
 		let limiter = this.createLimiter(tracker, limitElem);
-		let width = 0;
-		if(typeof stackWidth === 'string') {
-			let cssValue: string = domUtils.getStyleSheetValue(stackWidth, 'width');
-			if(cssValue && (cssValue.substr(cssValue.length - 2) === 'px')) {
-				width = parseInt(cssValue);
-			} else {
-				throw Error('Stacker CSS width value is not in pixels.');
-			}
-		} else if(typeof stackWidth === 'number') {
-			width = stackWidth;
-		}
-		let height = 0;
-		if(typeof stackHeight === 'string') {
-			let cssValue: string = domUtils.getStyleSheetValue(stackHeight, 'height');
-			if(cssValue && (cssValue.substr(cssValue.length - 2) === 'px')) {
-				height = parseInt(cssValue);
-			} else {
-				throw Error('Stacker CSS height value is not in pixels.');
-			}
-		} else if(typeof stackHeight === 'number') {
-			height = stackHeight;
-		}
-		
+		let width = this.getValueOrCSSProp(stackWidth, 'width');
+		let height = this.getValueOrCSSProp(stackHeight, 'height');
 		let rect = baseElem.getBoundingClientRect();
 		let stacker: Stacker = {
 			limiter: limiter,
@@ -311,6 +348,8 @@ export class ScrollSizeManager {
 					tracker.rightStackers.push(stacker);
 					tracker.rightStackers.sort(this.sortStackerDescending);
 					break;
+				default:
+					break;
 			}
 			this.updateResize(false);
 		}
@@ -329,8 +368,10 @@ export class ScrollSizeManager {
 				case StackerLocation.RIGHT:
 					this.removeArrayElement(tracker.rightStackers, stacker);
 					break;
+				default:
+					break;
 			}
-		}
+		};
 	}
 
 	private sortStackerAscending(s1: Stacker, s2: Stacker): number {
@@ -350,7 +391,22 @@ export class ScrollSizeManager {
 		}
 		return 0;
 	}
-	
+
+	private getValueOrCSSProp(valueOrRuleSelector: string | number, cssProp: string): number {
+		let result = 0;
+		if(typeof valueOrRuleSelector === 'string') {
+			let cssValue: string = domUtils.getStyleSheetValue(valueOrRuleSelector, cssProp);
+			if(cssValue && (cssValue.substr(cssValue.length - 2) === 'px')) {
+				result = parseInt(cssValue, 10);
+			} else {
+				throw Error('CSS property ' + cssProp + ' value "' + cssValue + '" is not in pixels.');
+			}
+		} else if(typeof valueOrRuleSelector === 'number') {
+			result = valueOrRuleSelector;
+		}
+		return result;
+	}
+
 	private createTrackerRoot(key: string, elem: any): ScrollTrackerRoot {
 		let tracker: ScrollTrackerRoot = this.scrollTrackerRoots[key];
 		if(tracker) {
@@ -368,12 +424,16 @@ export class ScrollSizeManager {
 			top: 0,
 			width: 0,
 			height: 0,
-			stackedLeft: 0,
+			fixedTop: 0,
+			fixedRight: 0,
+			fixedBottom: 0,
+			fixedLeft: 0,
 			stackedTop: 0,
 			stackedRight: 0,
 			stackedBottom: 0,
+			stackedLeft: 0,
 			canUseFixed: false,
-			unregisterListener: null,
+			unregisterListener: undefined,
 			changeListeners: [],
 			limiters: [],
 			topStackers: [],
@@ -415,7 +475,7 @@ export class ScrollSizeManager {
 		}
 	}
 
-	addAnchorTracker(key: string, elem: Element, anchorElem: Element, anchorClass: string, anchorClasses: AnchorClasses, callback: AnchorCallback): () => void {
+	public addAnchorTracker(key: string, elem: Element, anchorElem: Element, anchorClass: string, anchorClasses: AnchorClasses, callback: AnchorCallback): () => void {
 		let tracker: ScrollTrackerRoot = this.createTrackerRoot(key, null);
 		let anchorTracker: AnchorTracker = {
 			elem: elem,
@@ -431,8 +491,9 @@ export class ScrollSizeManager {
 		};
 	}
 
-	addOverflowTracker(elem: Element, overflowWidth: boolean, overflowHeight: boolean, callback: OverflowCallback): () => void {
+	public addOverflowTracker(containerElem: Element, elem: HTMLElement, overflowWidth: boolean, overflowHeight: boolean, callback: OverflowCallback): () => void {
 		let tracker: OverflowTracker = {
+			containerElem: containerElem,
 			elem: elem,
 			overflowWidth: overflowWidth,
 			overflowHeight: overflowHeight,
@@ -481,7 +542,7 @@ export class ScrollSizeManager {
 				limiter.right = winLeft + rect.right;
 				limiter.bottom = winTop + rect.bottom;
 			}
-			let offsetTop = 0;
+			let offsetTop = tracker.fixedTop;
 			let stackers: Stacker[] = tracker.topStackers;
 			count = stackers.length;
 			for(let n = 0; n < count; n++) {
@@ -493,7 +554,7 @@ export class ScrollSizeManager {
 				stacker.baseBottom = winTop + rect.bottom;
 				offsetTop = offsetTop + this.updateTopStacker(stacker, offsetTop, winTop, winHeight, canUseFixed, hideNonFixed);
 			}
-			let offsetBottom = 0;
+			let offsetBottom = tracker.fixedBottom;
 			stackers = tracker.bottomStackers;
 			count = stackers.length;
 			for(let n = 0; n < count; n++) {
@@ -505,7 +566,7 @@ export class ScrollSizeManager {
 				stacker.baseBottom = winTop + rect.bottom;
 				offsetBottom = offsetBottom + this.updateBottomStacker(stacker, offsetBottom, winTop, winHeight, canUseFixed, hideNonFixed);
 			}
-			let offsetLeft = 0;
+			let offsetLeft = tracker.fixedLeft;
 			stackers = tracker.leftStackers;
 			count = stackers.length;
 			for(let n = 0; n < count; n++) {
@@ -517,7 +578,7 @@ export class ScrollSizeManager {
 				stacker.baseBottom = winTop + rect.bottom;
 				offsetLeft = offsetLeft + this.updateLeftStacker(stacker, offsetLeft, winLeft, winWidth, canUseFixed, hideNonFixed);
 			}
-			let offsetRight = 0;
+			let offsetRight = tracker.fixedRight;
 			stackers = tracker.rightStackers;
 			count = stackers.length;
 			for(let n = 0; n < count; n++) {
@@ -602,15 +663,15 @@ export class ScrollSizeManager {
 		}
 		if(oldTop !== winTop) {
 			let stackers: Stacker[] = tracker.topStackers;
-			let count = stackers.length;
-			let offsetTop = 0;
+			count = stackers.length;
+			let offsetTop = tracker.fixedTop;
 			for(let n = 0; n < count; n++) {
 				let stacker = stackers[n];
 				offsetTop = offsetTop + this.updateTopStacker(stacker, offsetTop, winTop, winHeight, canUseFixed, hideNonFixed);
 			}
 			stackers = tracker.bottomStackers;
 			count = stackers.length;
-			let offsetBottom = 0;
+			let offsetBottom = tracker.fixedBottom;
 			for(let n = 0; n < count; n++) {
 				let stacker = stackers[n];
 				offsetBottom = offsetBottom + this.updateBottomStacker(stacker, offsetBottom, winTop, winHeight, canUseFixed, hideNonFixed);
@@ -620,15 +681,15 @@ export class ScrollSizeManager {
 		}
 		if(oldLeft !== winLeft) {
 			let stackers: Stacker[] = tracker.leftStackers;
-			let count = stackers.length;
-			let offsetLeft = 0;
+			count = stackers.length;
+			let offsetLeft = tracker.fixedLeft;
 			for(let n = 0; n < count; n++) {
 				let stacker = stackers[n];
 				offsetLeft = offsetLeft + this.updateLeftStacker(stacker, offsetLeft, winLeft, winWidth, canUseFixed, hideNonFixed);
 			}
 			stackers = tracker.rightStackers;
 			count = stackers.length;
-			let offsetRight = 0;
+			let offsetRight = tracker.fixedRight;
 			for(let n = 0; n < count; n++) {
 				let stacker = stackers[n];
 				offsetRight = offsetRight + this.updateRightStacker(stacker, offsetRight, winLeft, winWidth, canUseFixed, hideNonFixed);
@@ -827,16 +888,19 @@ export class ScrollSizeManager {
 	}
 
 	private updateOverflowTracker(overflowTracker: OverflowTracker) {
-		let elem = overflowTracker.elem;
-		let width = 0;
-		let height = 0;
+		const containerElem = overflowTracker.containerElem;
+		let containerWidth = 0;
+		let containerHeight = 0;
 		if(overflowTracker.overflowWidth) {
-			width = elem.scrollWidth;
+			containerWidth = containerElem.clientWidth;
 		}
 		if(overflowTracker.overflowHeight) {
-			height = elem.scrollHeight;
+			containerHeight = containerElem.clientHeight;
 		}
-		let overflowed = ((height > 0) && (height > elem.clientHeight)) || ((width > 0) && (width > elem.clientWidth));
+		const elem = overflowTracker.elem;
+		const width = elem.offsetWidth;
+		const height = elem.offsetHeight;
+		let overflowed = ((containerHeight > 0) && (height > containerHeight)) || ((containerWidth > 0) && (width > containerWidth));
 		if(overflowed && !overflowTracker.overflowed) {
 			overflowTracker.overflowed = true;
 			overflowTracker.width = width;
@@ -845,7 +909,7 @@ export class ScrollSizeManager {
 		} else if(!overflowed && overflowTracker.overflowed) {
 			overflowTracker.overflowed = false;
 			overflowTracker.callback.call(undefined, false, overflowTracker.width, overflowTracker.height);
-		} else if((width != overflowTracker.width) || (height != overflowTracker.height)) {
+		} else if((width !== overflowTracker.width) || (height !== overflowTracker.height)) {
 			overflowTracker.width = width;
 			overflowTracker.height = height;
 			overflowTracker.callback.call(undefined, overflowTracker.overflowed, overflowTracker.width, overflowTracker.height);
@@ -864,10 +928,42 @@ export class ScrollSizeManager {
 				|| (defaultClass === classes.topRight)
 				|| (defaultClass === classes.bottomLeft)
 				|| (defaultClass === classes.bottomRight)) {
-			let topLeft = this.visibleArea(anchorRect.left, anchorRect.bottom, anchorRect.left + elemWidth, anchorRect.bottom + elemHeight, winLeft, winTop, winRight, winBottom);
-			let topRight = this.visibleArea(anchorRect.right - elemWidth, anchorRect.bottom, anchorRect.right, anchorRect.bottom + elemHeight, winLeft, winTop, winRight, winBottom);
-			let bottomLeft = this.visibleArea(anchorRect.left, anchorRect.top - elemHeight, anchorRect.left + elemWidth, anchorRect.top, winLeft, winTop, winRight, winBottom);
-			let bottomRight = this.visibleArea(anchorRect.right - elemWidth, anchorRect.top - elemHeight, anchorRect.right, anchorRect.top, winLeft, winTop, winRight, winBottom);
+			let topLeft = this.visibleArea(
+					anchorRect.left,
+					anchorRect.bottom,
+					anchorRect.left + elemWidth,
+					anchorRect.bottom + elemHeight,
+					winLeft,
+					winTop,
+					winRight,
+					winBottom);
+			let topRight = this.visibleArea(
+					anchorRect.right - elemWidth,
+					anchorRect.bottom,
+					anchorRect.right,
+					anchorRect.bottom + elemHeight,
+					winLeft,
+					winTop,
+					winRight,
+					winBottom);
+			let bottomLeft = this.visibleArea(
+					anchorRect.left,
+					anchorRect.top - elemHeight,
+					anchorRect.left + elemWidth,
+					anchorRect.top,
+					winLeft,
+					winTop,
+					winRight,
+					winBottom);
+			let bottomRight = this.visibleArea(
+					anchorRect.right - elemWidth,
+					anchorRect.top - elemHeight,
+					anchorRect.right,
+					anchorRect.top,
+					winLeft,
+					winTop,
+					winRight,
+					winBottom);
 			if(defaultClass === classes.topLeft) {
 				if((topLeft >= topRight) && (topLeft >= bottomLeft) && (topLeft >= bottomRight)) {
 					currentClass = classes.topLeft;
@@ -910,10 +1006,42 @@ export class ScrollSizeManager {
 				}
 			}
 		} else {
-			let leftTop = this.visibleArea(anchorRect.right, anchorRect.top, anchorRect.right + elemWidth, anchorRect.top + elemHeight, winLeft, winTop, winRight, winBottom);
-			let leftBottom = this.visibleArea(anchorRect.right, anchorRect.bottom - elemHeight, anchorRect.right + elemWidth, anchorRect.bottom, winLeft, winTop, winRight, winBottom);
-			let rightTop = this.visibleArea(anchorRect.left - elemWidth, anchorRect.top, anchorRect.left, anchorRect.top + elemHeight, winLeft, winTop, winRight, winBottom);
-			let rightBottom = this.visibleArea(anchorRect.left - elemWidth, anchorRect.bottom - elemHeight, anchorRect.left, anchorRect.bottom, winLeft, winTop, winRight, winBottom);
+			let leftTop = this.visibleArea(
+					anchorRect.right,
+					anchorRect.top,
+					anchorRect.right + elemWidth,
+					anchorRect.top + elemHeight,
+					winLeft,
+					winTop,
+					winRight,
+					winBottom);
+			let leftBottom = this.visibleArea(
+					anchorRect.right,
+					anchorRect.bottom - elemHeight,
+					anchorRect.right + elemWidth,
+					anchorRect.bottom,
+					winLeft,
+					winTop,
+					winRight,
+					winBottom);
+			let rightTop = this.visibleArea(
+					anchorRect.left - elemWidth,
+					anchorRect.top,
+					anchorRect.left,
+					anchorRect.top + elemHeight,
+					winLeft,
+					winTop,
+					winRight,
+					winBottom);
+			let rightBottom = this.visibleArea(
+					anchorRect.left - elemWidth,
+					anchorRect.bottom - elemHeight,
+					anchorRect.left,
+					anchorRect.bottom,
+					winLeft,
+					winTop,
+					winRight,
+					winBottom);
 			if(defaultClass === classes.leftTop) {
 				if((leftTop >= rightTop) && (leftTop >= leftBottom) && (leftTop >= rightBottom)) {
 					currentClass = classes.leftTop;
@@ -962,7 +1090,15 @@ export class ScrollSizeManager {
 		}
 	}
 
-	private visibleArea(elemLeft: number, elemTop: number, elemRight: number, elemBottom: number, winLeft: number, winTop: number, winRight: number, winBottom: number) {
+	private visibleArea(
+				elemLeft: number,
+				elemTop: number,
+				elemRight: number,
+				elemBottom: number,
+				winLeft: number,
+				winTop: number,
+				winRight: number,
+				winBottom: number) {
 		let widthOverlap = Math.max(0, Math.min(elemRight, winRight) - Math.max(elemLeft, winLeft));
 		let heightOverlap = Math.max(0, Math.min(elemBottom, winBottom) - Math.max(elemTop, winTop));
 		return widthOverlap * heightOverlap;

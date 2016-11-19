@@ -2,19 +2,19 @@
 // Polyfill the matches method on DOM elements.
 // Code from https://developer.mozilla.org/en-US/docs/Web/API/Element/matches
 if (!Element.prototype.matches) {
-	Element.prototype.matches = 
-		(<any>Element.prototype).matchesSelector || 
+	Element.prototype.matches =
+		(<any>Element.prototype).matchesSelector ||
 		(<any>Element.prototype).mozMatchesSelector ||
-		Element.prototype.msMatchesSelector || 
-		(<any>Element.prototype).oMatchesSelector || 
+		Element.prototype.msMatchesSelector ||
+		(<any>Element.prototype).oMatchesSelector ||
 		Element.prototype.webkitMatchesSelector ||
 		function(s) {
-			var matches = (this.document || this.ownerDocument).querySelectorAll(s),
-			i = matches.length;
+			const matches = (this.document || this.ownerDocument).querySelectorAll(s);
+			let i = matches.length;
 			while (--i >= 0 && matches.item(i) !== this) {
 				// Empty loop body
 			}
-			return i > -1;            
+			return i > -1;
 		};
 }
 
@@ -22,13 +22,14 @@ if (!Element.prototype.matches) {
 // Code from Modernizr
 let registerEventOptions: boolean|{passive: boolean} = false;
 try {
-	var opts = Object.defineProperty({}, 'passive', {
+	const opts = Object.defineProperty({}, 'passive', {
 		get: function() {
 			registerEventOptions = { passive: true };
 		}
 	});
-	window.addEventListener('dummy', null, opts);
+	(<any>window).addEventListener('dummy', null, opts);
 } catch(e) {
+	// Catch and ignore any exceptions in detection code.
 }
 
 export function registerEventListener(element: any, event: string, callback: (event: Event) => void): () => void {
@@ -42,11 +43,15 @@ export function registerEventListener(element: any, event: string, callback: (ev
 		return function unregisterEvent() {
 			element.detachEvent('on' + event, callback);
 		};
+	} else {
+		return function() {
+			// Dummy unregister function.
+		};
 	}
 }
 
-export function findParentMatchingSelector(element: Element, selector: string): Element {
-	var parent: HTMLElement = <HTMLElement>element;
+export function findParentMatchingSelector(element: Element, selector: string): Element | null {
+	let parent: HTMLElement | null = <HTMLElement>element;
 	if(parent) {
 		do {
 			if(parent.matches(selector)) {
@@ -60,22 +65,22 @@ export function findParentMatchingSelector(element: Element, selector: string): 
 }
 
 export function getStyleSheetValue(ruleSelector: string, propName: string): any {
-	for(var sheetIdx = 0; sheetIdx < document.styleSheets.length; sheetIdx++) {
-		var sheet: CSSStyleSheet = <CSSStyleSheet>document.styleSheets.item(sheetIdx);
+	for(let sheetIdx = 0; sheetIdx < document.styleSheets.length; sheetIdx++) {
+		const sheet: CSSStyleSheet = <CSSStyleSheet>document.styleSheets.item(sheetIdx);
 		if(sheet) {
-			var rules: CSSRuleList;
+			let rules: CSSRuleList;
 			if(sheet.cssRules) {
 				rules = sheet.cssRules;
 			} else {
 				rules = sheet.rules;
 			}
-			for(var ruleIdx = 0; ruleIdx < rules.length; ruleIdx++) {
-				var rule: CSSStyleRule = <CSSStyleRule>rules.item(ruleIdx);
+			for(let ruleIdx = 0; ruleIdx < rules.length; ruleIdx++) {
+				const rule: CSSStyleRule = <CSSStyleRule>rules.item(ruleIdx);
 				if(rule.selectorText && ((rule.selectorText === ruleSelector) || (rule.selectorText.split(',').indexOf(ruleSelector) >= 0))) {
 					return (<any>rule.style)[propName];
 				}
 			}
 		}
 	}
-	return null;
+	return undefined;
 }

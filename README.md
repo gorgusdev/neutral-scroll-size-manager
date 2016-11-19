@@ -226,9 +226,11 @@ interface AnchorClasses {
 ### Add Overflow Tracker
 
 ```javascript
-addOverflowTracker(elem: Element, overflowWidth: boolean, overflowHeight: boolean, callback: OverflowCallback): () => void
+addOverflowTracker(containerElem: Element, elem: HTMLElement, overflowWidth: boolean, overflowHeight: boolean, callback: OverflowCallback): () => void
 ```
-- **elem** An element to track overflow in.
+- **containerElem** An element to track overflow in.
+
+- **elem** An element whose size is compared to `containerElem` to determine overflow.
 
 - **overflowWidth** A flag to indicate if the width can overflow.
 
@@ -236,13 +238,14 @@ addOverflowTracker(elem: Element, overflowWidth: boolean, overflowHeight: boolea
 
 - **callback** A callback function called when `elem` overflows.
 
-Call this method to add an overflow tracker to the manager. The overflow tracker will monitor `elem` to see if
-its content overflows its client width and/or height depending on the `overflowWidth` and `overflowHeight` argument.
+Call this method to add an overflow tracker to the manager. The overflow tracker will monitor `containerElem` and
+`elem` to see if `elem`'s width and/or height is larger than `containerElem`'s client width and/or height. Width
+is checked only if `overflowWidth` is true and height is checked only if `overflowHeight` is true.
 
-If the content of `elem` is overflowing the `callback` function will be called to notify the application of the 
-unrestricted size of the content.
+If the size of `elem` is overflowing `containerElem` the `callback` function will be called to notify the application of the 
+unrestricted size.
 
-If the content stops overflowing the `callback` function will be called once again to notify the application.
+If the size stops overflowing, the `callback` function will be called once again to notify the application.
 
 To remove an overflow tracker from the manager use function returned from this method.
 

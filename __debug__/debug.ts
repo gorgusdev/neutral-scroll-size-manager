@@ -2,43 +2,63 @@ import scrollManager from '../src/index';
 
 scrollManager.startResizeTracking();
 scrollManager.addScrollTracker('root', window);
-var topContainer = document.getElementById('top-container');
-var topStack = document.getElementById('top-stack');
-scrollManager.addTopStacker('root', topContainer, topStack, '#root', 0, 40, true, false, (stacked: boolean, offset: number, useFixed: boolean, hidden: boolean) => {
-	if(stacked) {
-		topStack.className = 'stacked';
-	} else {
-		topStack.className = '';
-	}
-});
-var bitContainer = document.getElementById('bit-container');
-var bitStack = document.getElementById('bit-stack');
-scrollManager.addTopStacker('root', bitContainer, bitStack, '#bit-limit', 0, 20, true, false, (stacked: boolean, offset: number, useFixed: boolean, hidden: boolean) => {
-	if(stacked) {
-		bitStack.className = 'stacked';
-	} else {
-		bitStack.className = '';
-	}
-});
-var midContainer = document.getElementById('mid-container');
-var midStack = document.getElementById('mid-stack');
-scrollManager.addTopStacker('root', midContainer, midStack, '#root', 0, 30, true, false, (stacked: boolean, offset: number, useFixed: boolean, hidden: boolean) => {
-	if(stacked) {
-		midStack.className = 'stacked';
-	} else {
-		midStack.className = '';
-	}
-});
-var botContainer = document.getElementById('bot-container');
-var botStack = document.getElementById('bot-stack');
-scrollManager.addBottomStacker('root', botContainer, botStack, '#root', 0, 50, true, false, (stacked: boolean, offset: number, useFixed: boolean, hidden: boolean) => {
-	if(stacked) {
-		botStack.className = 'stacked';
-	} else {
-		botStack.className = '';
-	}
-});
-var anchorClasses = {
+let topContainer = document.getElementById('top-container');
+let topStack = document.getElementById('top-stack');
+if(topContainer && topStack) {
+	scrollManager.addTopStacker('root', topContainer, topStack, '#root', 0, 40, true, false, (stacked: boolean, offset: number, useFixed: boolean, hidden: boolean) => {
+		if(!topStack) {
+			return;
+		}
+		if(stacked) {
+			topStack.className = 'stacked';
+		} else {
+			topStack.className = '';
+		}
+	});
+}
+let bitContainer = document.getElementById('bit-container');
+let bitStack = document.getElementById('bit-stack');
+if(bitContainer && bitStack) {
+	scrollManager.addTopStacker('root', bitContainer, bitStack, '#bit-limit', 0, 20, true, false, (stacked: boolean, offset: number, useFixed: boolean, hidden: boolean) => {
+		if(!bitStack) {
+			return;
+		}
+		if(stacked) {
+			bitStack.className = 'stacked';
+		} else {
+			bitStack.className = '';
+		}
+	});
+}
+let midContainer = document.getElementById('mid-container');
+let midStack = document.getElementById('mid-stack');
+if(midContainer && midStack) {
+	scrollManager.addTopStacker('root', midContainer, midStack, '#root', 0, 30, true, false, (stacked: boolean, offset: number, useFixed: boolean, hidden: boolean) => {
+		if(!midStack) {
+			return;
+		}
+		if(stacked) {
+			midStack.className = 'stacked';
+		} else {
+			midStack.className = '';
+		}
+	});
+}
+let botContainer = document.getElementById('bot-container');
+let botStack = document.getElementById('bot-stack');
+if(botContainer && botStack) {
+	scrollManager.addBottomStacker('root', botContainer, botStack, '#root', 0, 50, true, false, (stacked: boolean, offset: number, useFixed: boolean, hidden: boolean) => {
+		if(!botStack) {
+			return;
+		}
+		if(stacked) {
+			botStack.className = 'stacked';
+		} else {
+			botStack.className = '';
+		}
+	});
+}
+let anchorClasses = {
 	bottomLeft: 'bottom-left',
 	bottomRight: 'bottom-right',
 	topLeft: 'top-left',
@@ -48,42 +68,79 @@ var anchorClasses = {
 	leftTop: 'left-top',
 	rightTop: 'right-top'
 };
-var anchor = document.getElementById('anchor');
-var anchored = document.getElementById('anchored');
-scrollManager.addAnchorTracker('root', anchored, anchor, 'top-left', anchorClasses, (anchorClass: string) => {
-	anchored.className = anchorClass;
-});
+let anchor = document.getElementById('anchor');
+let anchored = document.getElementById('anchored');
+if(anchor && anchored) {
+	scrollManager.addAnchorTracker('root', anchored, anchor, 'top-left', anchorClasses, (anchorClass: string) => {
+		if(!anchored) {
+			return;
+		}
+		anchored.className = anchorClass;
+	});
+}
 
-var anchor2 = document.getElementById('anchor2');
-var anchored2 = document.getElementById('anchored2');
-scrollManager.addAnchorTracker('root', anchored2, anchor2, 'bottom-right', anchorClasses, (anchorClass: string) => {
-	anchored2.className = anchorClass;
-});
+let anchor2 = document.getElementById('anchor2');
+let anchored2 = document.getElementById('anchored2');
+if(anchor2 && anchored2) {
+	scrollManager.addAnchorTracker('root', anchored2, anchor2, 'bottom-right', anchorClasses, (anchorClass: string) => {
+		if(!anchored2) {
+			return;
+		}
+		anchored2.className = anchorClass;
+	});
+}
 
 scrollManager.addScrollTracker('scroller', document.getElementById('scroller'));
-var anchor3 = document.getElementById('anchor3');
-var anchored3 = document.getElementById('anchored3');
-scrollManager.addAnchorTracker('scroller', anchored3, anchor3, 'bottom-left', anchorClasses, (anchorClass: string) => {
-	anchored3.className = anchorClass;
-});
+let anchor3 = document.getElementById('anchor3');
+let anchored3 = document.getElementById('anchored3');
+if(anchor3 && anchored3) {
+	scrollManager.addAnchorTracker('scroller', anchored3, anchor3, 'bottom-left', anchorClasses, (anchorClass: string) => {
+		if(!anchored3) {
+			return;
+		}
+		anchored3.className = anchorClass;
+	});
+}
 
-var overflowable = document.getElementById('overflowable');
-var overflowing = document.getElementById('overflowing');
-scrollManager.addOverflowTracker(overflowable, false, true, (overflowed: boolean, width: number, height: number) => {
-	if(overflowed) {
-		overflowing.className = 'overflowed';
-	} else {
-		overflowing.className = '';
-	}
-});
-var buttons = document.querySelectorAll('button');
-for(var n = 0; n < buttons.length; n++) {
-	var button = buttons.item(n);
+let overflowable = document.getElementById('overflowable');
+let overflowing = document.getElementById('overflowing');
+if(overflowable && overflowing) {
+	scrollManager.addOverflowTracker(overflowable, overflowing, false, true, (overflowed: boolean, width: number, height: number) => {
+		if(!overflowable) {
+			return;
+		}
+		if(overflowed) {
+			overflowable.className = 'overflowed';
+		} else {
+			overflowable.className = '';
+		}
+	});
+}
+
+let buttons = document.querySelectorAll('button');
+for(let n = 0; n < buttons.length; n++) {
+	let button = buttons.item(n);
 	button.addEventListener('click', () => {
+		if(!overflowable) {
+			return;
+		}
 		if(overflowable.className === 'expanded') {
 			overflowable.className = '';
 		} else {
 			overflowable.className = 'expanded';
 		}
+	});
+}
+
+let focusOn1Button = document.getElementById('focusOn1Button');
+let focusOn1 = document.getElementById('focusOn1');
+if(focusOn1Button && focusOn1) {
+	focusOn1Button.addEventListener('click', () => {
+		if(!focusOn1) {
+			return;
+		}
+		let rect = focusOn1.getBoundingClientRect();
+		console.log(rect);
+		window.scrollTo(undefined, rect.top);
 	});
 }
