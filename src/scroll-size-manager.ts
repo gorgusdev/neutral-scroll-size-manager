@@ -9,7 +9,7 @@ export interface StackerCallback {
 }
 
 interface Limiter {
-	elem: Element;
+	elem: Element | null;
 	left: number;
 	top: number;
 	right: number;
@@ -297,17 +297,20 @@ export class ScrollSizeManager {
 		let winLeft = tracker.left;
 		let winTop = tracker.top;
 
-		let limitElem = domUtils.findParentMatchingSelector(baseElem, limiterSelector);
-		let count = 0;
-		while(limitElem && (count < limiterSkipCount)) {
-			let tmp = domUtils.findParentMatchingSelector(limitElem.parentElement, limiterSelector);
-			if(tmp) {
-				limitElem = tmp;
+		let limitElem: Element | null = null;
+		if(limiterSelector) {
+			limitElem = domUtils.findParentMatchingSelector(baseElem, limiterSelector);
+			let count = 0;
+			while(limitElem && (count < limiterSkipCount)) {
+				let tmp = domUtils.findParentMatchingSelector(limitElem.parentElement, limiterSelector);
+				if(tmp) {
+					limitElem = tmp;
+				}
+				count += 1;
 			}
-			count += 1;
-		}
-		if(!limitElem) {
-			throw new Error('Missing limiter element with selector "' + limiterSelector + '" skipped ' + limiterSkipCount + ' times');
+			if(!limitElem) {
+				throw new Error('Missing limiter element with selector "' + limiterSelector + '" skipped ' + limiterSkipCount + ' times');
+			}
 		}
 		let limiter = this.createLimiter(tracker, limitElem);
 		let width = this.getValueOrCSSProp(stackWidth, 'width');
@@ -447,7 +450,7 @@ export class ScrollSizeManager {
 		return tracker;
 	}
 
-	private createLimiter(tracker: ScrollTrackerRoot, elem: Element): Limiter {
+	private createLimiter(tracker: ScrollTrackerRoot, elem: Element | null): Limiter {
 		let limiters: Limiter[] = tracker.limiters;
 		for(let n = 0; n < limiters.length; n++) {
 			if(limiters[n].elem === elem) {
@@ -459,8 +462,8 @@ export class ScrollSizeManager {
 			elem: elem,
 			left: 0,
 			top: 0,
-			right: 0,
-			bottom: 0,
+			right: Infinity,
+			bottom: Infinity,
 			refCount: 1
 		};
 		tracker.limiters.unshift(limiter);
@@ -536,6 +539,9 @@ export class ScrollSizeManager {
 			let count = limiters.length;
 			for(let n = 0; n < count; n++) {
 				let limiter: Limiter = limiters[n];
+				if(!limiter.elem) {
+					continue;
+				}
 				let rect = limiter.elem.getBoundingClientRect();
 				limiter.left = winLeft + rect.left;
 				limiter.top = winTop + rect.top;

@@ -127,7 +127,8 @@ box must fit inside the visible part of a limiter element. If these checks retur
 
 The limiter element is found by walking up the list of `baseElem` parent elements and checking to see which one matches the
 `limiterSelector` argument string. A number of matched limiter elements equal to the `limiterSkipCount` argument are ignored
-before a limiter element is selected.
+before a limiter element is selected. If the limiter selector is false (by being the empty string) no limiter element will
+be searched for and no check against a limiter element will be performed.
 
 A stacked element will have an inline style applied to set the `top` / `bottom` / `left` / `right` position. The inline
 `display` style can also be set to `none` if the `canUseFixed` argument is false or  the scroll tracker is not tracking

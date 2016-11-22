@@ -5,7 +5,7 @@ scrollManager.addScrollTracker('root', window);
 let topContainer = document.getElementById('top-container');
 let topStack = document.getElementById('top-stack');
 if(topContainer && topStack) {
-	scrollManager.addTopStacker('root', topContainer, topStack, '#root', 0, 40, true, false, (stacked: boolean, offset: number, useFixed: boolean, hidden: boolean) => {
+	scrollManager.addTopStacker('root', topContainer, topStack, '', 0, 40, true, false, (stacked: boolean, offset: number, useFixed: boolean, hidden: boolean) => {
 		if(!topStack) {
 			return;
 		}
