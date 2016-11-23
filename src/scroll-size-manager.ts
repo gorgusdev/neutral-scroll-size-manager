@@ -645,6 +645,264 @@ export class ScrollSizeManager {
 		}, 100);
 	};
 
+	public scrollTop(key: string, coordOrElemOrSelector: Element | string | number, offset?: number) {
+		const tracker: ScrollTrackerRoot = this.scrollTrackerRoots[key];
+		if(!tracker) {
+			return;
+		}
+
+		let targetTop = (offset || 0);
+		let element: Element | null;
+
+		if(typeof coordOrElemOrSelector === 'number') {
+			targetTop += coordOrElemOrSelector;
+		} else {
+			if(typeof coordOrElemOrSelector === 'string') {
+				element = document.querySelector(coordOrElemOrSelector);
+			} else {
+				element = coordOrElemOrSelector;
+			}
+			if(!element) {
+				return;
+			}
+			const rect = element.getBoundingClientRect();
+			targetTop += rect.top;
+		}
+
+		let boxTop: number;
+		let boxHeight: number;
+		if(tracker.elem === window) {
+			boxTop = 0;
+			boxHeight = tracker.height;
+		} else {
+			let boxRect = tracker.elem.getBoundingClientRect();
+			boxTop = boxRect.top;
+			boxHeight = boxRect.bottom - boxRect.top;
+		}
+		targetTop += (tracker.top - boxTop);
+
+		const stackers: Stacker[] = tracker.topStackers;
+		const count = stackers.length;
+		let offsetTop = tracker.fixedTop;
+		for(let n = 0; n < count; n++) {
+			let stacker = stackers[n];
+			offsetTop = offsetTop + this.simulateTopStacker(stacker, offsetTop, targetTop, boxHeight);
+		}
+		targetTop -= offsetTop;
+
+		if(tracker.elem === window) {
+			tracker.elem.scrollTo(tracker.left, targetTop);
+		} else {
+			tracker.elem.scrollTop = targetTop;
+		}
+	}
+
+	public scrollBottom(key: string, coordOrElemOrSelector: Element | string | number, offset?: number) {
+		const tracker: ScrollTrackerRoot = this.scrollTrackerRoots[key];
+		if(!tracker) {
+			return;
+		}
+
+		let targetBottom = -(offset || 0);
+		let element: Element | null;
+
+		if(typeof coordOrElemOrSelector === 'number') {
+			targetBottom += coordOrElemOrSelector;
+		} else {
+			if(typeof coordOrElemOrSelector === 'string') {
+				element = document.querySelector(coordOrElemOrSelector);
+			} else {
+				element = coordOrElemOrSelector;
+			}
+			if(!element) {
+				return;
+			}
+			const rect = element.getBoundingClientRect();
+			targetBottom += rect.bottom;
+		}
+
+		let boxTop: number;
+		let boxHeight: number;
+		if(tracker.elem === window) {
+			boxTop = 0;
+			boxHeight = tracker.height;
+		} else {
+			let boxRect = tracker.elem.getBoundingClientRect();
+			boxTop = boxRect.top;
+			boxHeight = boxRect.bottom - boxRect.top;
+		}
+		targetBottom += (tracker.top - boxHeight - boxTop);
+
+		const stackers: Stacker[] = tracker.bottomStackers;
+		const count = stackers.length;
+		let offsetBottom = tracker.fixedBottom;
+		for(let n = 0; n < count; n++) {
+			let stacker = stackers[n];
+			offsetBottom = offsetBottom + this.simulateBottomStacker(stacker, offsetBottom, targetBottom, boxHeight);
+		}
+		targetBottom += offsetBottom;
+
+		if(tracker.elem === window) {
+			tracker.elem.scrollTo(tracker.left, targetBottom);
+		} else {
+			tracker.elem.scrollTop = targetBottom;
+		}
+	}
+
+	public scrollLeft(key: string, coordOrElemOrSelector: Element | string | number, offset?: number) {
+		const tracker: ScrollTrackerRoot = this.scrollTrackerRoots[key];
+		if(!tracker) {
+			return;
+		}
+
+		let targetLeft = (offset || 0);
+		let element: Element | null;
+
+		if(typeof coordOrElemOrSelector === 'number') {
+			targetLeft += coordOrElemOrSelector;
+		} else {
+			if(typeof coordOrElemOrSelector === 'string') {
+				element = document.querySelector(coordOrElemOrSelector);
+			} else {
+				element = coordOrElemOrSelector;
+			}
+			if(!element) {
+				return;
+			}
+			const rect = element.getBoundingClientRect();
+			targetLeft += rect.left;
+		}
+
+		let boxLeft: number;
+		let boxWidth: number;
+		if(tracker.elem === window) {
+			boxLeft = 0;
+			boxWidth = tracker.width;
+		} else {
+			let boxRect = tracker.elem.getBoundingClientRect();
+			boxLeft = boxRect.left;
+			boxWidth = boxRect.right - boxRect.left;
+		}
+		targetLeft += (tracker.left - boxLeft);
+
+		const stackers: Stacker[] = tracker.leftStackers;
+		const count = stackers.length;
+		let offsetLeft = tracker.fixedLeft;
+		for(let n = 0; n < count; n++) {
+			let stacker = stackers[n];
+			offsetLeft = offsetLeft + this.simulateLeftStacker(stacker, offsetLeft, targetLeft, boxWidth);
+		}
+		targetLeft -= offsetLeft;
+
+		if(tracker.elem === window) {
+			tracker.elem.scrollTo(targetLeft, tracker.top);
+		} else {
+			tracker.elem.scrollLeft = targetLeft;
+		}
+	}
+
+	public scrollRight(key: string, coordOrElemOrSelector: Element | string | number, offset?: number) {
+		const tracker: ScrollTrackerRoot = this.scrollTrackerRoots[key];
+		if(!tracker) {
+			return;
+		}
+
+		let targetRight = -(offset || 0);
+		let element: Element | null;
+
+		if(typeof coordOrElemOrSelector === 'number') {
+			targetRight += coordOrElemOrSelector;
+		} else {
+			if(typeof coordOrElemOrSelector === 'string') {
+				element = document.querySelector(coordOrElemOrSelector);
+			} else {
+				element = coordOrElemOrSelector;
+			}
+			if(!element) {
+				return;
+			}
+			const rect = element.getBoundingClientRect();
+			targetRight += rect.right;
+		}
+
+		let boxLeft: number;
+		let boxWidth: number;
+		if(tracker.elem === window) {
+			boxLeft = 0;
+			boxWidth = tracker.width;
+		} else {
+			let boxRect = tracker.elem.getBoundingClientRect();
+			boxLeft = boxRect.left;
+			boxWidth = boxRect.right - boxRect.left;
+		}
+		targetRight += (tracker.left - boxWidth - boxLeft);
+
+		const stackers: Stacker[] = tracker.rightStackers;
+		const count = stackers.length;
+		let offsetRight = tracker.fixedRight;
+		for(let n = 0; n < count; n++) {
+			let stacker = stackers[n];
+			offsetRight = offsetRight + this.simulateRightStacker(stacker, offsetRight, targetRight, boxWidth);
+		}
+		targetRight += offsetRight;
+
+		if(tracker.elem === window) {
+			tracker.elem.scrollTo(targetRight, tracker.top);
+		} else {
+			tracker.elem.scrollLeft = targetRight;
+		}
+	}
+
+	public scrollIntoView(key: string, elemOrSelector: Element | string, offset?: number) {
+		const tracker: ScrollTrackerRoot = this.scrollTrackerRoots[key];
+		if(!tracker) {
+			return;
+		}
+
+		let element: Element | null;
+		if(typeof elemOrSelector === 'string') {
+			element = document.querySelector(elemOrSelector);
+		} else {
+			element = elemOrSelector;
+		}
+		if(!element) {
+			return;
+		}
+
+		let boxTop: number;
+		let boxLeft: number;
+		let boxHeight: number;
+		let boxWidth: number;
+		if(tracker.elem === window) {
+			boxTop = 0;
+			boxLeft = 0;
+			boxHeight = tracker.height;
+			boxWidth = tracker.width;
+		} else {
+			let boxRect = tracker.elem.getBoundingClientRect();
+			boxTop = boxRect.top;
+			boxLeft = boxRect.left;
+			boxHeight = boxRect.bottom - boxRect.top;
+			boxWidth = boxRect.right - boxRect.left;
+		}
+
+		const rect = element.getBoundingClientRect();
+		const elemTop = rect.top - boxTop;
+		const elemLeft = rect.left - boxLeft;
+		const elemHeight = rect.bottom - rect.top;
+		const elemWidth = rect.right - rect.left;
+		if(elemTop < tracker.stackedTop) {
+			this.scrollTop(key, element, offset);
+		} else if(elemTop + elemHeight > boxHeight - tracker.stackedBottom) {
+			this.scrollBottom(key, element, offset);
+		}
+		if(elemLeft < tracker.stackedLeft) {
+			this.scrollLeft(key, element, offset);
+		} else if(elemLeft + elemWidth > boxWidth - tracker.stackedRight) {
+			this.scrollRight(key, element, offset);
+		}
+	}
+
 	private updateScroll(tracker: ScrollTrackerRoot) {
 		let oldLeft = tracker.left;
 		let oldTop = tracker.top;
@@ -761,6 +1019,15 @@ export class ScrollSizeManager {
 		}
 	}
 
+	private simulateTopStacker(stacker: Stacker, offsetY: number, winTop: number, winHeight: number) {
+		if((winTop + offsetY > stacker.limiter.top) && (winTop + offsetY < stacker.limiter.bottom - stacker.stackHeight)) {
+			if(winTop + offsetY > stacker.baseTop) {
+				return stacker.stackHeight;
+			}
+		}
+		return 0;
+	}
+
 	private updateTopStacker(stacker: Stacker, offsetY: number, winTop: number, winHeight: number, useFixed: boolean, hideNonFixed: boolean): number {
 		if((winTop + offsetY > stacker.limiter.top) && (winTop + offsetY < stacker.limiter.bottom - stacker.stackHeight)) {
 			if((winTop + offsetY > stacker.baseTop) && (!useFixed || !stacker.canUseFixed || stacker.trackOffset || !stacker.stacked)) {
@@ -792,6 +1059,15 @@ export class ScrollSizeManager {
 			stacker.callback.call(undefined, false, 0, false, false);
 		}
 		return (stacker.stacked ? stacker.stackHeight : 0);
+	}
+
+	private simulateBottomStacker(stacker: Stacker, offsetY: number, winTop: number, winHeight: number) {
+		if((winTop + winHeight - offsetY > stacker.limiter.top + stacker.stackHeight) && (winTop + winHeight + offsetY < stacker.limiter.bottom)) {
+			if(winTop + winHeight - offsetY < stacker.baseBottom) {
+				return stacker.stackHeight;
+			}
+		}
+		return 0;
 	}
 
 	private updateBottomStacker(stacker: Stacker, offsetY: number, winTop: number, winHeight: number, useFixed: boolean, hideNonFixed: boolean): number {
@@ -827,6 +1103,15 @@ export class ScrollSizeManager {
 		return (stacker.stacked ? stacker.stackHeight : 0);
 	}
 
+	private simulateLeftStacker(stacker: Stacker, offsetX: number, winLeft: number, winWidth: number) {
+		if((winLeft + offsetX > stacker.limiter.left) && (winLeft + offsetX < stacker.limiter.right - stacker.stackWidth)) {
+			if(winLeft + offsetX > stacker.baseLeft) {
+				return stacker.stackHeight;
+			}
+		}
+		return 0;
+	}
+
 	private updateLeftStacker(stacker: Stacker, offsetX: number, winLeft: number, winWidth: number, useFixed: boolean, hideNonFixed: boolean): number {
 		if((winLeft + offsetX > stacker.limiter.left) && (winLeft + offsetX < stacker.limiter.right - stacker.stackWidth)) {
 			if((winLeft + offsetX > stacker.baseLeft) && (!useFixed || !stacker.canUseFixed || stacker.trackOffset || !stacker.stacked)) {
@@ -858,6 +1143,15 @@ export class ScrollSizeManager {
 			stacker.callback.call(undefined, false, 0, false, false);
 		}
 		return (stacker.stacked ? stacker.stackWidth : 0);
+	}
+
+	private simulateRightStacker(stacker: Stacker, offsetX: number, winLeft: number, winWidth: number) {
+		if((winLeft + winWidth - offsetX > stacker.limiter.left + stacker.stackWidth) && (winLeft + winWidth + offsetX < stacker.limiter.right)) {
+			if(winLeft + winWidth - offsetX < stacker.baseRight) {
+				return stacker.stackHeight;
+			}
+		}
+		return 0;
 	}
 
 	private updateRightStacker(stacker: Stacker, offsetX: number, winLeft: number, winWidth: number, useFixed: boolean, hideNonFixed: boolean): number {

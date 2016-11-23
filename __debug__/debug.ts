@@ -133,14 +133,61 @@ for(let n = 0; n < buttons.length; n++) {
 }
 
 let focusOn1Button = document.getElementById('focusOn1Button');
+let focusOn3Button = document.getElementById('focusOn3Button');
+let focusOn5Button = document.getElementById('focusOn5Button');
 let focusOn1 = document.getElementById('focusOn1');
 if(focusOn1Button && focusOn1) {
 	focusOn1Button.addEventListener('click', () => {
 		if(!focusOn1) {
 			return;
 		}
-		let rect = focusOn1.getBoundingClientRect();
-		console.log(rect);
-		window.scrollTo(undefined, rect.top);
+		scrollManager.scrollTop('root', focusOn1);
+	});
+}
+if(focusOn3Button && focusOn1) {
+	focusOn3Button.addEventListener('click', () => {
+		if(!focusOn1) {
+			return;
+		}
+		scrollManager.scrollBottom('root', focusOn1);
+	});
+}
+if(focusOn5Button && focusOn1) {
+	focusOn5Button.addEventListener('click', () => {
+		if(!focusOn1) {
+			return;
+		}
+		scrollManager.scrollIntoView('root', focusOn1);
+	});
+}
+
+let focusOn2Button = document.getElementById('focusOn2Button');
+let focusOn6Button = document.getElementById('focusOn6Button');
+let focusOn2 = document.getElementById('focusOn2');
+if(focusOn2Button && focusOn2) {
+	focusOn2Button.addEventListener('click', () => {
+		if(!focusOn2) {
+			return;
+		}
+		scrollManager.scrollTop('scroller', focusOn2);
+	});
+}
+if(focusOn6Button && focusOn2) {
+	focusOn6Button.addEventListener('click', () => {
+		if(!focusOn2) {
+			return;
+		}
+		scrollManager.scrollIntoView('scroller', focusOn2);
+	});
+}
+
+let focusOn4Button = document.getElementById('focusOn4Button');
+let focusOn3 = document.getElementById('focusOn3');
+if(focusOn4Button && focusOn3) {
+	focusOn4Button.addEventListener('click', () => {
+		if(!focusOn3) {
+			return;
+		}
+		scrollManager.scrollBottom('scroller', focusOn3);
 	});
 }

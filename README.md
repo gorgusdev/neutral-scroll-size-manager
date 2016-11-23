@@ -262,6 +262,63 @@ interface OverflowCallback {
 - **height** A number representing the full overflow height.
 
 
+### Scroll Top / Bottom / Left / Right
+
+```javascript
+scrollLeft(key: string, coordOrElemOrSelector: Element | string | number, offset?: number)
+
+scrollTop(key: string, coordOrElemOrSelector: Element | string | number, offset?: number)
+
+scrollRight(key: string, coordOrElemOrSelector: Element | string | number, offset?: number)
+
+scrollBottom(key: string, coordOrElemOrSelector: Element | string | number, offset?: number)
+```
+- **key** A key used to refer to the scroll tracker.
+
+- **coordOrElemOrSelector** Target to scroll to as a coordinate number, element or selector.
+
+- **offset** An optional offset from det target set by `coordOrElemOrSelector`.
+
+Use one of these methods to position a scroll tracker at a target location. The target
+`coordOrElemOrSelector` can be a numeric coordinate in the scroll tracker, a DOM element or
+a selector string that matches a DOM element. If a DOM element or selector is used then the
+scroll tracker will be position such that the left, top, right or bottom edge of the element
+is next to the corresponding edge of the scroll tracker. For example using the `scrollLeft`
+method on a scroll tracker connected to the window with an element as argument, will position
+the element's top edge against the window's top edge.
+
+Any stacked elements along an edge will be accounted for when positioning the scroll tracker.
+
+If the `offset` parameter is provided then the target location will be shifted away from the
+scroll tracker edge the offset amount of pixels.
+
+
+### Scroll Into View
+
+```javascript
+scrollIntoView(key: string, elemOrSelector: Element | string, offset?: number)
+```
+- **key** A key used to refer to the scroll tracker.
+
+- **elemOrSelector** Target to scroll into view as an element or selector.
+
+- **offset** An optional offset from det target set by `elemOrSelector`.
+
+Use this method to position a scroll tracker such that a DOM element becomes visible. If any
+edge of the element is outside the visible part of the scroll tracker container then the
+corresponding scroll method will be called to bring that edge to the edge of the container.
+If both opposing edges (left / right, top / bottom) of the element is outside the visible
+part of the container then the left and/or top edges will be scrolled into view.
+
+The `elemOrSelector` can be a DOM element or a selector string matching a DOM element in the
+document.
+
+Any stacked elements along an edge will be accounted for when positioning the scroll tracker.
+
+If the `offset` parameter is provided then that many pixels will be added around the element
+when positioning the scroll tracker.
+
+
 - - -
 
 > I don't know if it's good, but it's definitely not evil, so I guess it's neutral.
