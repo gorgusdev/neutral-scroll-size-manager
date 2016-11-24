@@ -1209,7 +1209,8 @@ export class ScrollSizeManager {
 		} else if(!overflowed && overflowTracker.overflowed) {
 			overflowTracker.overflowed = false;
 			overflowTracker.callback.call(undefined, false, overflowTracker.width, overflowTracker.height);
-		} else if((width !== overflowTracker.width) || (height !== overflowTracker.height)) {
+		} else if(((containerWidth > 0) && (width !== overflowTracker.width))
+				|| ((containerHeight > 0) && (height !== overflowTracker.height))) {
 			overflowTracker.width = width;
 			overflowTracker.height = height;
 			overflowTracker.callback.call(undefined, overflowTracker.overflowed, overflowTracker.width, overflowTracker.height);
