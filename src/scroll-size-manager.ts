@@ -1003,7 +1003,6 @@ export class ScrollSizeManager {
 		for(let n = 0; n < count; n++) {
 			let stacker = stackers[n];
 			if((!useFixed || !stacker.canUseFixed) && stacker.stacked) {
-				stacker.stackElem.style.display = '';
 				stacker.callback.call(undefined, true, stacker.offset, false, false);
 			}
 		}
@@ -1013,7 +1012,6 @@ export class ScrollSizeManager {
 		for(let n = 0; n < count; n++) {
 			let stacker = stackers[n];
 			if((!useFixed || !stacker.canUseFixed) && stacker.stacked) {
-				stacker.stackElem.style.display = '';
 				stacker.callback.call(undefined, true, stacker.offset, false, false);
 			}
 		}
@@ -1038,23 +1036,18 @@ export class ScrollSizeManager {
 					stacker.stackElem.style.top = offsetY.toFixed(0) + 'px';
 					stacker.callback.call(undefined, true, offset, true, false);
 				} else {
-					if(hideNonFixed) {
-						stacker.stackElem.style.display = 'none';
-					}
 					stacker.stackElem.style.top = offset.toFixed(0) + 'px';
 					stacker.callback.call(undefined, true, offset, false, hideNonFixed);
 				}
 			} else if((winTop + offsetY <= stacker.baseTop) && stacker.stacked) {
 				stacker.stacked = false;
 				stacker.offset = 0;
-				stacker.stackElem.style.display = '';
 				stacker.stackElem.style.top = null;
 				stacker.callback.call(undefined, false, 0, false, false);
 			}
 		} else if(stacker.stacked) {
 			stacker.stacked = false;
 			stacker.offset = 0;
-			stacker.stackElem.style.display = '';
 			stacker.stackElem.style.top = null;
 			stacker.callback.call(undefined, false, 0, false, false);
 		}
@@ -1080,23 +1073,18 @@ export class ScrollSizeManager {
 					stacker.stackElem.style.bottom = offsetY.toFixed(0) + 'px';
 					stacker.callback.call(undefined, true, offset, true, false);
 				} else {
-					if(hideNonFixed) {
-						stacker.stackElem.style.display = 'none';
-					}
 					stacker.stackElem.style.bottom = offset.toFixed(0) + 'px';
 					stacker.callback.call(undefined, true, offset, false, hideNonFixed);
 				}
 			} else if((winTop + winHeight - offsetY >= stacker.baseBottom) && stacker.stacked) {
 				stacker.stacked = false;
 				stacker.offset = 0;
-				stacker.stackElem.style.display = '';
 				stacker.stackElem.style.bottom = '';
 				stacker.callback.call(undefined, false, 0, false, false);
 			}
 		} else if(stacker.stacked) {
 			stacker.stacked = false;
 			stacker.offset = 0;
-			stacker.stackElem.style.display = '';
 			stacker.stackElem.style.bottom = '';
 			stacker.callback.call(undefined, false, 0, false, false);
 		}
@@ -1122,23 +1110,18 @@ export class ScrollSizeManager {
 					stacker.stackElem.style.left = offsetX.toFixed(0) + 'px';
 					stacker.callback.call(undefined, true, offset, true, false);
 				} else {
-					if(hideNonFixed) {
-						stacker.stackElem.style.display = 'none';
-					}
 					stacker.stackElem.style.left = offset.toFixed(0) + 'px';
 					stacker.callback.call(undefined, true, offset, false, hideNonFixed);
 				}
 			} else if((winLeft + offsetX <= stacker.baseLeft) && stacker.stacked) {
 				stacker.stacked = false;
 				stacker.offset = 0;
-				stacker.stackElem.style.display = '';
 				stacker.stackElem.style.left = null;
 				stacker.callback.call(undefined, false, 0, false, false);
 			}
 		} else if(stacker.stacked) {
 			stacker.stacked = false;
 			stacker.offset = 0;
-			stacker.stackElem.style.display = '';
 			stacker.stackElem.style.left = null;
 			stacker.callback.call(undefined, false, 0, false, false);
 		}
@@ -1164,23 +1147,18 @@ export class ScrollSizeManager {
 					stacker.stackElem.style.right = offsetX.toFixed(0) + 'px';
 					stacker.callback.call(undefined, true, offset, true, false);
 				} else {
-					if(hideNonFixed) {
-						stacker.stackElem.style.display = 'none';
-					}
 					stacker.stackElem.style.right = offset.toFixed(0) + 'px';
 					stacker.callback.call(undefined, true, offset, false, hideNonFixed);
 				}
 			} else if((winLeft + winWidth - offsetX >= stacker.baseRight) && stacker.stacked) {
 				stacker.stacked = false;
 				stacker.offset = 0;
-				stacker.stackElem.style.display = '';
 				stacker.stackElem.style.right = '';
 				stacker.callback.call(undefined, false, 0, false, false);
 			}
 		} else if(stacker.stacked) {
 			stacker.stacked = false;
 			stacker.offset = 0;
-			stacker.stackElem.style.display = '';
 			stacker.stackElem.style.right = '';
 			stacker.callback.call(undefined, false, 0, false, false);
 		}

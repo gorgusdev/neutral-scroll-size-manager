@@ -130,10 +130,7 @@ The limiter element is found by walking up the list of `baseElem` parent element
 before a limiter element is selected. If the limiter selector is false (by being the empty string) no limiter element will
 be searched for and no check against a limiter element will be performed.
 
-A stacked element will have an inline style applied to set the `top` / `bottom` / `left` / `right` position. The inline
-`display` style can also be set to `none` if the `canUseFixed` argument is false or  the scroll tracker is not tracking
-`window` scrolling and the `hideNonFixed` manager field is true. This is to hide stacked elements while scrolling to
-prevent a jumpy / lagging update of the elements position. The inline `display` style will removed when scrolling stops.
+A stacked element will have an inline style applied to set the `top` / `bottom` / `left` / `right` position.
 
 After any changes to inline styles the `callback` function will be called to notify the application that `stackElem` is now
 stacked. It's up to the application to apply any styles to actually make the element stack according to the position set by
@@ -162,7 +159,7 @@ interface StackerCallback {
 
 - **useFixed** A flag to indicate if the element should use `position: fixed` to stack.
 
-- **hidden** A flag to indicate if the element is currently hidden while scrolling occurs.
+- **hidden** A flag to indicate if the element should be hidden while scrolling occurs.
 
 
 ### Add Anchor Tracker
