@@ -157,7 +157,7 @@ if(focusOn5Button && focusOn1) {
 		if(!focusOn1) {
 			return;
 		}
-		scrollManager.scrollIntoView('root', focusOn1);
+		scrollManager.scrollIntoView('root', focusOn1, 10);
 	});
 }
 

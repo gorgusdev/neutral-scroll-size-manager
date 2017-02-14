@@ -301,7 +301,7 @@ export class ScrollSizeManager {
 		if(limiterSelector) {
 			limitElem = domUtils.findParentMatchingSelector(baseElem, limiterSelector);
 			let count = 0;
-			while(limitElem && (count < limiterSkipCount)) {
+			while(limitElem && limitElem.parentElement && (count < limiterSkipCount)) {
 				let tmp = domUtils.findParentMatchingSelector(limitElem.parentElement, limiterSelector);
 				if(tmp) {
 					limitElem = tmp;
@@ -651,7 +651,7 @@ export class ScrollSizeManager {
 			return;
 		}
 
-		let targetTop = (offset || 0);
+		let targetTop = -(offset || 0);
 		let element: Element | null;
 
 		if(typeof coordOrElemOrSelector === 'number') {
@@ -674,10 +674,15 @@ export class ScrollSizeManager {
 		if(tracker.elem === window) {
 			boxTop = 0;
 			boxHeight = tracker.height;
+			tracker.left = window.pageXOffset || document.documentElement.scrollLeft;
+			tracker.top = window.pageYOffset || document.documentElement.scrollTop;
 		} else {
-			let boxRect = tracker.elem.getBoundingClientRect();
+			const elem = tracker.elem;
+			const boxRect = elem.getBoundingClientRect();
 			boxTop = boxRect.top;
 			boxHeight = boxRect.bottom - boxRect.top;
+			tracker.left = elem.scrollLeft;
+			tracker.top = elem.scrollTop;
 		}
 		targetTop += (tracker.top - boxTop);
 
@@ -703,7 +708,7 @@ export class ScrollSizeManager {
 			return;
 		}
 
-		let targetBottom = -(offset || 0);
+		let targetBottom = (offset || 0);
 		let element: Element | null;
 
 		if(typeof coordOrElemOrSelector === 'number') {
@@ -726,10 +731,15 @@ export class ScrollSizeManager {
 		if(tracker.elem === window) {
 			boxTop = 0;
 			boxHeight = tracker.height;
+			tracker.left = window.pageXOffset || document.documentElement.scrollLeft;
+			tracker.top = window.pageYOffset || document.documentElement.scrollTop;
 		} else {
-			let boxRect = tracker.elem.getBoundingClientRect();
+			const elem = tracker.elem;
+			const boxRect = elem.getBoundingClientRect();
 			boxTop = boxRect.top;
 			boxHeight = boxRect.bottom - boxRect.top;
+			tracker.left = elem.scrollLeft;
+			tracker.top = elem.scrollTop;
 		}
 		targetBottom += (tracker.top - boxHeight - boxTop);
 
@@ -755,7 +765,7 @@ export class ScrollSizeManager {
 			return;
 		}
 
-		let targetLeft = (offset || 0);
+		let targetLeft = -(offset || 0);
 		let element: Element | null;
 
 		if(typeof coordOrElemOrSelector === 'number') {
@@ -778,10 +788,15 @@ export class ScrollSizeManager {
 		if(tracker.elem === window) {
 			boxLeft = 0;
 			boxWidth = tracker.width;
+			tracker.left = window.pageXOffset || document.documentElement.scrollLeft;
+			tracker.top = window.pageYOffset || document.documentElement.scrollTop;
 		} else {
-			let boxRect = tracker.elem.getBoundingClientRect();
+			const elem = tracker.elem;
+			const boxRect = elem.getBoundingClientRect();
 			boxLeft = boxRect.left;
 			boxWidth = boxRect.right - boxRect.left;
+			tracker.left = elem.scrollLeft;
+			tracker.top = elem.scrollTop;
 		}
 		targetLeft += (tracker.left - boxLeft);
 
@@ -807,7 +822,7 @@ export class ScrollSizeManager {
 			return;
 		}
 
-		let targetRight = -(offset || 0);
+		let targetRight = (offset || 0);
 		let element: Element | null;
 
 		if(typeof coordOrElemOrSelector === 'number') {
@@ -830,10 +845,15 @@ export class ScrollSizeManager {
 		if(tracker.elem === window) {
 			boxLeft = 0;
 			boxWidth = tracker.width;
+			tracker.left = window.pageXOffset || document.documentElement.scrollLeft;
+			tracker.top = window.pageYOffset || document.documentElement.scrollTop;
 		} else {
-			let boxRect = tracker.elem.getBoundingClientRect();
+			const elem = tracker.elem;
+			const boxRect = elem.getBoundingClientRect();
 			boxLeft = boxRect.left;
 			boxWidth = boxRect.right - boxRect.left;
+			tracker.left = elem.scrollLeft;
+			tracker.top = elem.scrollTop;
 		}
 		targetRight += (tracker.left - boxWidth - boxLeft);
 
@@ -891,14 +911,14 @@ export class ScrollSizeManager {
 		const elemLeft = rect.left - boxLeft;
 		const elemHeight = rect.bottom - rect.top;
 		const elemWidth = rect.right - rect.left;
-		if(elemTop < tracker.stackedTop) {
+		if(elemTop - offset < tracker.stackedTop) {
 			this.scrollTop(key, element, offset);
-		} else if(elemTop + elemHeight > boxHeight - tracker.stackedBottom) {
+		} else if(elemTop + elemHeight + offset > boxHeight - tracker.stackedBottom) {
 			this.scrollBottom(key, element, offset);
 		}
-		if(elemLeft < tracker.stackedLeft) {
+		if(elemLeft - offset < tracker.stackedLeft) {
 			this.scrollLeft(key, element, offset);
-		} else if(elemLeft + elemWidth > boxWidth - tracker.stackedRight) {
+		} else if(elemLeft + elemWidth + offset > boxWidth - tracker.stackedRight) {
 			this.scrollRight(key, element, offset);
 		}
 	}
