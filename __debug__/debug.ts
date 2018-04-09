@@ -4,8 +4,9 @@ scrollManager.startResizeTracking();
 scrollManager.addScrollTracker('root', window);
 let topContainer = document.getElementById('top-container');
 let topStack = document.getElementById('top-stack');
+let removeTopStack: (() => void) | undefined = undefined;
 if(topContainer && topStack) {
-	scrollManager.addTopStacker('root', topContainer, topStack, '', 0, 40, true, false, (stacked: boolean, offset: number, useFixed: boolean, hidden: boolean) => {
+	removeTopStack = scrollManager.addTopStacker('root', topContainer, topStack, '', 0, 40, true, false, (stacked: boolean, offset: number, useFixed: boolean, hidden: boolean) => {
 		if(!topStack) {
 			return;
 		}
@@ -34,6 +35,7 @@ let midContainer = document.getElementById('mid-container');
 let midStack = document.getElementById('mid-stack');
 if(midContainer && midStack) {
 	scrollManager.addTopStacker('root', midContainer, midStack, '#root', 0, 30, true, false, (stacked: boolean, offset: number, useFixed: boolean, hidden: boolean) => {
+		console.log('Mid stack:', stacked, offset);
 		if(!midStack) {
 			return;
 		}
@@ -189,5 +191,12 @@ if(focusOn4Button && focusOn3) {
 			return;
 		}
 		scrollManager.scrollBottom('scroller', focusOn3);
+	});
+}
+
+let removeTopStackButton = document.getElementById('removeTopStack');
+if(removeTopStackButton && removeTopStack) {
+	removeTopStackButton.addEventListener('click', () => {
+		removeTopStack!();
 	});
 }

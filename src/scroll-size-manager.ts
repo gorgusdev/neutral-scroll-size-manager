@@ -177,7 +177,7 @@ export class ScrollSizeManager {
 			tracker.unregisterListener = domUtils.registerEventListener(tracker.elem, 'scroll', (event: Event) => {
 				let target = event.target || event.srcElement;
 				if((target === tracker.elem) || ((!target || (target === document)) && (tracker.elem === window))) {
-					this.updateScroll(tracker);
+					this.updateScroll(tracker, false);
 				}
 			});
 		}
@@ -197,7 +197,7 @@ export class ScrollSizeManager {
 			tracker.fixedLeft = this.getValueOrCSSProp(fixedLeftOffset, 'width');
 		}
 		this.updateResize(false);
-		this.updateScroll(tracker);
+		this.updateScroll(tracker, true);
 	}
 
 	public removeTracker(key: string) {
@@ -374,6 +374,8 @@ export class ScrollSizeManager {
 				default:
 					break;
 			}
+			this.updateResize(false);
+			this.updateScroll(tracker, true);
 		};
 	}
 
@@ -558,7 +560,7 @@ export class ScrollSizeManager {
 				stacker.baseTop = winTop + rect.top;
 				stacker.baseRight = winLeft + rect.right;
 				stacker.baseBottom = winTop + rect.bottom;
-				offsetTop = offsetTop + this.updateTopStacker(stacker, offsetTop, winTop, winHeight, canUseFixed, hideNonFixed);
+				offsetTop = offsetTop + this.updateTopStacker(stacker, offsetTop, winTop, winHeight, canUseFixed, hideNonFixed, false);
 			}
 			let offsetBottom = tracker.fixedBottom;
 			stackers = tracker.bottomStackers;
@@ -570,7 +572,7 @@ export class ScrollSizeManager {
 				stacker.baseTop = winTop + rect.top;
 				stacker.baseRight = winLeft + rect.right;
 				stacker.baseBottom = winTop + rect.bottom;
-				offsetBottom = offsetBottom + this.updateBottomStacker(stacker, offsetBottom, winTop, winHeight, canUseFixed, hideNonFixed);
+				offsetBottom = offsetBottom + this.updateBottomStacker(stacker, offsetBottom, winTop, winHeight, canUseFixed, hideNonFixed, false);
 			}
 			let offsetLeft = tracker.fixedLeft;
 			stackers = tracker.leftStackers;
@@ -582,7 +584,7 @@ export class ScrollSizeManager {
 				stacker.baseTop = winTop + rect.top;
 				stacker.baseRight = winLeft + rect.right;
 				stacker.baseBottom = winTop + rect.bottom;
-				offsetLeft = offsetLeft + this.updateLeftStacker(stacker, offsetLeft, winLeft, winWidth, canUseFixed, hideNonFixed);
+				offsetLeft = offsetLeft + this.updateLeftStacker(stacker, offsetLeft, winLeft, winWidth, canUseFixed, hideNonFixed, false);
 			}
 			let offsetRight = tracker.fixedRight;
 			stackers = tracker.rightStackers;
@@ -594,7 +596,7 @@ export class ScrollSizeManager {
 				stacker.baseTop = winTop + rect.top;
 				stacker.baseRight = winLeft + rect.right;
 				stacker.baseBottom = winTop + rect.bottom;
-				offsetRight = offsetRight + this.updateRightStacker(stacker, offsetRight, winLeft, winWidth, canUseFixed, hideNonFixed);
+				offsetRight = offsetRight + this.updateRightStacker(stacker, offsetRight, winLeft, winWidth, canUseFixed, hideNonFixed, false);
 			}
 			tracker.stackedLeft = offsetLeft;
 			tracker.stackedTop = offsetTop;
@@ -911,6 +913,7 @@ export class ScrollSizeManager {
 		const elemLeft = rect.left - boxLeft;
 		const elemHeight = rect.bottom - rect.top;
 		const elemWidth = rect.right - rect.left;
+		offset = offset || 0;
 		if(elemTop - offset < tracker.stackedTop) {
 			this.scrollTop(key, element, offset);
 		} else if(elemTop + elemHeight + offset > boxHeight - tracker.stackedBottom) {
@@ -923,7 +926,7 @@ export class ScrollSizeManager {
 		}
 	}
 
-	private updateScroll(tracker: ScrollTrackerRoot) {
+	private updateScroll(tracker: ScrollTrackerRoot, restack: boolean) {
 		let oldLeft = tracker.left;
 		let oldTop = tracker.top;
 		if(tracker.elem === window) {
@@ -945,38 +948,38 @@ export class ScrollSizeManager {
 		for(let n = 0; n < count; n++) {
 			listeners[n].call(undefined, winLeft, winTop);
 		}
-		if(oldTop !== winTop) {
+		if((oldTop !== winTop) || restack) {
 			let stackers: Stacker[] = tracker.topStackers;
 			count = stackers.length;
 			let offsetTop = tracker.fixedTop;
 			for(let n = 0; n < count; n++) {
 				let stacker = stackers[n];
-				offsetTop = offsetTop + this.updateTopStacker(stacker, offsetTop, winTop, winHeight, canUseFixed, hideNonFixed);
+				offsetTop = offsetTop + this.updateTopStacker(stacker, offsetTop, winTop, winHeight, canUseFixed, hideNonFixed, restack);
 			}
 			stackers = tracker.bottomStackers;
 			count = stackers.length;
 			let offsetBottom = tracker.fixedBottom;
 			for(let n = 0; n < count; n++) {
 				let stacker = stackers[n];
-				offsetBottom = offsetBottom + this.updateBottomStacker(stacker, offsetBottom, winTop, winHeight, canUseFixed, hideNonFixed);
+				offsetBottom = offsetBottom + this.updateBottomStacker(stacker, offsetBottom, winTop, winHeight, canUseFixed, hideNonFixed, restack);
 			}
 			tracker.stackedTop = offsetTop;
 			tracker.stackedBottom = offsetBottom;
 		}
-		if(oldLeft !== winLeft) {
+		if((oldLeft !== winLeft) || restack) {
 			let stackers: Stacker[] = tracker.leftStackers;
 			count = stackers.length;
 			let offsetLeft = tracker.fixedLeft;
 			for(let n = 0; n < count; n++) {
 				let stacker = stackers[n];
-				offsetLeft = offsetLeft + this.updateLeftStacker(stacker, offsetLeft, winLeft, winWidth, canUseFixed, hideNonFixed);
+				offsetLeft = offsetLeft + this.updateLeftStacker(stacker, offsetLeft, winLeft, winWidth, canUseFixed, hideNonFixed, restack);
 			}
 			stackers = tracker.rightStackers;
 			count = stackers.length;
 			let offsetRight = tracker.fixedRight;
 			for(let n = 0; n < count; n++) {
 				let stacker = stackers[n];
-				offsetRight = offsetRight + this.updateRightStacker(stacker, offsetRight, winLeft, winWidth, canUseFixed, hideNonFixed);
+				offsetRight = offsetRight + this.updateRightStacker(stacker, offsetRight, winLeft, winWidth, canUseFixed, hideNonFixed, restack);
 			}
 			tracker.stackedLeft = offsetLeft;
 			tracker.stackedRight = offsetRight;
@@ -1046,9 +1049,17 @@ export class ScrollSizeManager {
 		return 0;
 	}
 
-	private updateTopStacker(stacker: Stacker, offsetY: number, winTop: number, winHeight: number, useFixed: boolean, hideNonFixed: boolean): number {
+	private updateTopStacker(
+		stacker: Stacker,
+		offsetY: number,
+		winTop: number,
+		winHeight: number,
+		useFixed: boolean,
+		hideNonFixed: boolean,
+		restack: boolean
+	): number {
 		if((winTop + offsetY > stacker.limiter.top) && (winTop + offsetY < stacker.limiter.bottom - stacker.stackHeight)) {
-			if((winTop + offsetY > stacker.baseTop) && (!useFixed || !stacker.canUseFixed || stacker.trackOffset || !stacker.stacked)) {
+			if((winTop + offsetY > stacker.baseTop) && (!useFixed || !stacker.canUseFixed || stacker.trackOffset || !stacker.stacked || restack)) {
 				let offset = (winTop + offsetY - stacker.baseTop);
 				stacker.stacked = true;
 				stacker.offset = offset;
@@ -1083,9 +1094,17 @@ export class ScrollSizeManager {
 		return 0;
 	}
 
-	private updateBottomStacker(stacker: Stacker, offsetY: number, winTop: number, winHeight: number, useFixed: boolean, hideNonFixed: boolean): number {
+	private updateBottomStacker(
+		stacker: Stacker,
+		offsetY: number,
+		winTop: number,
+		winHeight: number,
+		useFixed: boolean,
+		hideNonFixed: boolean,
+		restack: boolean
+	): number {
 		if((winTop + winHeight - offsetY > stacker.limiter.top + stacker.stackHeight) && (winTop + winHeight + offsetY < stacker.limiter.bottom)) {
-			if((winTop + winHeight - offsetY < stacker.baseBottom) && (!useFixed || !stacker.canUseFixed || stacker.trackOffset || !stacker.stacked)) {
+			if((winTop + winHeight - offsetY < stacker.baseBottom) && (!useFixed || !stacker.canUseFixed || stacker.trackOffset || !stacker.stacked || restack)) {
 				let offset = (stacker.baseBottom + offsetY - (winTop + winHeight));
 				stacker.stacked = true;
 				stacker.offset = offset;
@@ -1120,9 +1139,17 @@ export class ScrollSizeManager {
 		return 0;
 	}
 
-	private updateLeftStacker(stacker: Stacker, offsetX: number, winLeft: number, winWidth: number, useFixed: boolean, hideNonFixed: boolean): number {
+	private updateLeftStacker(
+		stacker: Stacker,
+		offsetX: number,
+		winLeft: number,
+		winWidth: number,
+		useFixed: boolean,
+		hideNonFixed: boolean,
+		restack: boolean
+	): number {
 		if((winLeft + offsetX > stacker.limiter.left) && (winLeft + offsetX < stacker.limiter.right - stacker.stackWidth)) {
-			if((winLeft + offsetX > stacker.baseLeft) && (!useFixed || !stacker.canUseFixed || stacker.trackOffset || !stacker.stacked)) {
+			if((winLeft + offsetX > stacker.baseLeft) && (!useFixed || !stacker.canUseFixed || stacker.trackOffset || !stacker.stacked || restack)) {
 				let offset = (winLeft + offsetX - stacker.baseLeft);
 				stacker.stacked = true;
 				stacker.offset = offset;
@@ -1157,9 +1184,17 @@ export class ScrollSizeManager {
 		return 0;
 	}
 
-	private updateRightStacker(stacker: Stacker, offsetX: number, winLeft: number, winWidth: number, useFixed: boolean, hideNonFixed: boolean): number {
+	private updateRightStacker(
+		stacker: Stacker,
+		offsetX: number,
+		winLeft: number,
+		winWidth: number,
+		useFixed: boolean,
+		hideNonFixed: boolean,
+		restack: boolean
+	): number {
 		if((winLeft + winWidth - offsetX > stacker.limiter.left + stacker.stackWidth) && (winLeft + winWidth + offsetX < stacker.limiter.right)) {
-			if((winLeft + winWidth - offsetX < stacker.baseRight) && (!useFixed || !stacker.canUseFixed || stacker.trackOffset || !stacker.stacked)) {
+			if((winLeft + winWidth - offsetX < stacker.baseRight) && (!useFixed || !stacker.canUseFixed || stacker.trackOffset || !stacker.stacked || restack)) {
 				let offset = (stacker.baseRight + offsetX - (winLeft + winWidth));
 				stacker.stacked = true;
 				stacker.offset = offset;
