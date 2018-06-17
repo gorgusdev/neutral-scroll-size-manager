@@ -1,0 +1,97 @@
+<html>
+    <head>
+        <title>Test Anchor</title>
+        <style>
+            * {
+                box-sizing: border-box;
+            }
+            html {
+                height: 100%;
+            }
+            body {
+                font-family: Arial, Helvetica, sans-serif;
+                font-size: 16px;
+                padding: 0;
+                margin: 0;
+                z-index: 0;
+                height: 100%;
+            }
+            p {
+                padding: 0px 10px;
+            }
+            .text-block {
+                flex: 0 0 200px;
+                width: 200px;
+            }
+            .text-block.wide {
+                flex: 0 0 400px;
+            }
+            #root {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+            }
+            #overflow-container1 {
+                flex: 1 1 200px;
+                height: 42px;
+                border: 1px solid #000;
+                position: relative;
+                overflow: hidden;
+            }
+            #overflow-content1 {
+                padding: 10px;
+            }
+            #overflow-container1.overflowing {
+                border: 1px solid #ff0000;
+            }
+            #overflow-container2 {
+                flex: 1 1 200px;
+                height: 42px;
+                border: 1px solid #000;
+                position: relative;
+                overflow: hidden;
+            }
+            #overflow-content2 {
+                display: inline-block;
+                padding: 10px;
+                white-space: nowrap;
+            }
+            #overflow-container2.overflowing {
+                border: 1px solid #ff0000;
+            }
+            #toggle-button {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100px;
+            }
+        </style>
+        <script src="bundle.js"></script>
+    </head>
+    <body>
+        <div id="root">
+            <button id="toggle-button">Toggle Side Bar Widths</button>
+            <div id="sidebar1" class="text-block">
+                <p>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin leo massa, semper sit amet lacus id, feugiat maximus ante. Morbi erat lectus, rutrum sit amet placerat ut, viverra eget mi. Nulla semper ullamcorper nunc vitae mattis. Praesent id aliquet leo. Pellentesque sit amet nisl massa. Nullam at accumsan arcu, quis malesuada mi. Aliquam pulvinar non nisl eu vehicula. Mauris non nulla eu velit posuere tempus. Sed facilisis euismod consectetur. In elementum commodo neque, in lobortis tellus ultricies non. Vestibulum vitae tortor quis erat aliquam facilisis. Aliquam cursus accumsan ligula, ut fringilla eros vulputate non. Pellentesque et feugiat felis. Aenean porta ex nec purus commodo vestibulum. Quisque posuere justo leo, quis suscipit massa venenatis eu. Fusce fermentum urna diam, quis fermentum eros lacinia quis.
+                </p>
+            </div>
+            <div id="overflow-container1">
+                <div id="overflow-content1">
+                    Overflow Container Text Content
+                </div>
+            </div>
+            <div id="overflow-container2">
+                <div id="overflow-content2">
+                    Overflow Container Text Content
+                </div>
+            </div>
+            <div id="sidebar2" class="text-block">
+                <p>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin leo massa, semper sit amet lacus id, feugiat maximus ante. Morbi erat lectus, rutrum sit amet placerat ut, viverra eget mi. Nulla semper ullamcorper nunc vitae mattis. Praesent id aliquet leo. Pellentesque sit amet nisl massa. Nullam at accumsan arcu, quis malesuada mi. Aliquam pulvinar non nisl eu vehicula. Mauris non nulla eu velit posuere tempus. Sed facilisis euismod consectetur. In elementum commodo neque, in lobortis tellus ultricies non. Vestibulum vitae tortor quis erat aliquam facilisis. Aliquam cursus accumsan ligula, ut fringilla eros vulputate non. Pellentesque et feugiat felis. Aenean porta ex nec purus commodo vestibulum. Quisque posuere justo leo, quis suscipit massa venenatis eu. Fusce fermentum urna diam, quis fermentum eros lacinia quis.
+                </p>
+            </div>
+        </div>
+        <script src="test-overflow.js"></script>
+    </body>
+</html>

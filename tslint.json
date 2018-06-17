@@ -9,7 +9,8 @@
   "rules": {
       "indent": [
           true,
-          "tabs"
+          "spaces",
+          4
       ],
       "triple-equals": [true, "allow-undefined-check", "allow-null-check"],
       "quotemark": [true, "single", "jsx-double"],
@@ -19,6 +20,8 @@
       "max-line-length": [true, 165],
       "trailing-comma": [false],
       "whitespace": [true, "check-decl", "check-operator", "check-module", "check-separator", "check-type"],
-      "member-ordering": [true, { "order": ["private-static-field", "protected-static-field", "public-static-field", "private-instance-field", "protected-instance-field", "public-instance-field", "constructor"] }]
+      "member-ordering": [true, { "order": ["private-static-field", "protected-static-field", "public-static-field", "private-instance-field", "protected-instance-field", "public-instance-field", "constructor"] }],
+      "ordered-imports": false,
+      "no-angle-bracket-type-assertion": false
   }
 }

@@ -18,7 +18,7 @@ has the following methods:
 ### Start Resize Tracking
 
 ```javascript
-startResizeTracking()
+startResizeTracking(): void
 ```
 
 Use this method to start tracking the resizing of the browser window.
@@ -26,7 +26,7 @@ Use this method to start tracking the resizing of the browser window.
 ### Stop Resize Tracking
 
 ```javascript
-stopResizeTracking()
+stopResizeTracking(): void
 ```
 
 Use this method to stop tracking the resizing of the browser window.
@@ -34,16 +34,26 @@ Use this method to stop tracking the resizing of the browser window.
 ### Check Resize From State Change
 
 ```javascript
-checkResizeFromStateChange()
+checkResizeFromStateChange(): void
 ```
 
 Call this method to notify the manager of the possibility of a resize change due to a change in
 the application state.
 
+### Hide Non Fixed While Scrolling
+
+```javascript
+hideNonFixedWhileScrolling(hide: boolean): void
+```
+
+Call this method to enable or disable hiding non-fixed elements while scrolling.
+
 ### Add Scroll Tracker
 
 ```javascript
-addScrollTracker(key: string, elem: any)
+addScrollTracker(key: string, elem: Window | HTMLElement,
+	fixedTopOffset?: string | number, fixedRightOffset?: string | number,
+	fixedBottomOffset?: string | number, fixedLeftOffset?: string | number): void
 ```
 - **key** A key used to refer to the scroll tracker.
 
@@ -55,7 +65,7 @@ will be added to the `elem` argument.
 ### Remove Tracker
 
 ```javascript
-removeTracker(key: string)
+removeTracker(key: string): void
 ```
 - **key** A key used to refer to the scroll tracker.
 
@@ -85,27 +95,27 @@ interface ScrollChangeListener {
 ### Add Top / Bottom / Left / Right Stacker
 
 ```javascript
-addTopStacker(key: string, baseElem: Element, stackElem: HTMLElement, 
+addTopStacker(key: string, baseElement: Element, stackElement: HTMLElement, 
+	limiterSelector: string, limiterSkipCount: number, stackHeight: string | number, 
+	canUseFixed: boolean, trackOffset: boolean, callback: StackerCallback): StackerControl
+
+addBottomStacker(key: string, baseElement: Element, stackElement: HTMLElement, 
 	limiterSelector: string, limiterSkipCount: number, stackHeight: string|number, 
-	canUseFixed: boolean, trackOffset: boolean, callback: StackerCallback): () => void
+	canUseFixed: boolean, trackOffset: boolean, callback: StackerCallback): StackerControl
 
-addBottomStacker(key: string, baseElem: Element, stackElem: HTMLElement, 
-	limiterSelector: string, limiterSkipCount: number, stackHeight: string|number, 
-	canUseFixed: boolean, trackOffset: boolean, callback: StackerCallback): () => void
-
-addLeftStacker(key: string, baseElem: Element, stackElem: HTMLElement, 
+addLeftStacker(key: string, baseElement: Element, stackElement: HTMLElement, 
 	limiterSelector: string, limiterSkipCount: number, stackWidth: string|number, 
-	canUseFixed: boolean, trackOffset: boolean, callback: StackerCallback): () => void
+	canUseFixed: boolean, trackOffset: boolean, callback: StackerCallback): StackerControl
 
-addRightStacker(key: string, baseElem: Element, stackElem: HTMLElement, 
+addRightStacker(key: string, baseElement: Element, stackElement: HTMLElement, 
 	limiterSelector: string, limiterSkipCount: number, stackWidth: string|number, 
-	canUseFixed: boolean, trackOffset: boolean, callback: StackerCallback): () => void
+	canUseFixed: boolean, trackOffset: boolean, callback: StackerCallback): StackerControl
 ```
 - **key** A key used to refer to the scroll tracker.
 
-- **baseElem** An element used to check if stacking should occur.
+- **baseElement** An element used to check if stacking should occur.
 
-- **stackElem** An element that will stacked.
+- **stackElement** An element that will stacked.
 
 - **limiterSelector** A selector string used to find the parent limiter element.
 
@@ -146,11 +156,11 @@ the `callback` will be called to notify the application.
 Each stacked element along a scroll tracker edge moves that edge a distance equal to the `stackWidth` / `stackHeight` for any
 other stacked elements after it.
 
-To remove a stacker use the function returned by these methods.
+To remove a stacker use the unregister function in the StackerControl object returned by these methods.
 
 ```javascript
 interface StackerCallback {
-	(stacked: boolean, offset: number, useFixed: boolean, hidden: boolean): void;
+	(stacked: boolean, offset: number, useFixed: boolean, hidden: boolean, lastStacked: boolean): void;
 }
 ```
 - **stacked** A flag to indicate if the element should be stacked or not.
@@ -161,38 +171,56 @@ interface StackerCallback {
 
 - **hidden** A flag to indicate if the element should be hidden while scrolling occurs.
 
+- **lastStacked** A flag to indicate if the element is the last in it's stack.
+
+```javascript
+interface StackerControl {
+    unregister: () => void;
+    enable: () => void;
+    disable: () => void;
+}
+```
+- **unregister** A method to remove the element from stacking.
+
+- **enable** A method to enable stacking.
+
+- **disable** A method to disable stacking.
+
 
 ### Add Anchor Tracker
 
 ```javascript
-addAnchorTracker(key: string, elem: Element, anchorElem: Element, anchorClass: string, anchorClasses: AnchorClasses, callback: AnchorCallback): () => void
+addAnchorTracker(key: string, baseElement: Element, anchoredElement: Element,
+	anchorClass: string, anchorClasses: AnchorClasses, callback: AnchorCallback
+): AnchorControl
 ```
 - **key** A key used to refer to the scroll tracker.
 
-- **elem** An element that is anchored to the `anchorElem`.
+- **baseElement** An element that the `anchoredElement` is anchored to.
 
-- **anchorElem** An element that the `elem` is anchored to.
+- **anchoredElement** An element that is anchored to the `baseElement`.
 
-- **anchorClass** A CSS class name that indicate where `elem` is anchored.
+- **anchorClass** A CSS class name that indicate where `anchoredElement` is anchored.
 
 - **anchorClasses** A map of alternative CSS class names to indicate anchor points.
 
 - **callback** A callback function called to change anchor point.
 
 Use this method to add an anchor tracker to a scroll tracker. When a resize occurs the anchor trackers will be checked to see
-if any anchor points should be changed. An anchor tracker is checked by looking at the current anchor class of an `elem`. There
-are 8 different anchor classes provided by the `anchorClasses` argument. Each one indicates how `elem` is anchored to `anchorElem`:
+if any anchor points should be changed. An anchor tracker is checked by looking at the current anchor class of an `anchoredElement`.
+There are 8 different anchor classes provided by the `anchorClasses` argument. Each one indicates how `anchoredElement`
+is anchored to `baseElement`:
 
-- **topLeft**: `elem` extends below `anchorElem` with its top edge along `anchorElem`'s bottom edge and with both left edges aligned.
-- **topRight**: `elem` extends below `anchorElem` with its top edge along `anchorElem`'s bottom edge and with both right edges aligned.
-- **bottomLeft**: `elem` extends above `anchorElem` with its bottom edge along `anchorElem`'s top edge and with both left edges aligned.
-- **bottomRight**: `elem` extends above `anchorElem` with its bottom edge along `anchorElem`'s top edge and with both right edges aligned.
-- **leftTop**: `elem` extends to the right of `anchorElem` with its left edge along `anchorElem`'s right edge and with both top edges aligned.
-- **leftBottom**: `elem` extends the right of `anchorElem` with its left edge along `anchorElem`'s right edge and with both bottom edges aligned.
-- **rightTop**: `elem` extends to the left of `anchorElem` with its right edge along `anchorElem`'s left edge and with both top edges aligned.
-- **rightBottom**: `elem` extends to the left of `anchorElem` with its right edge along `anchorElem`'s left edge and with both bottom edges aligned.
+- **topLeft**: `anchoredElement` extends below `baseElement` with its top edge along `baseElement`'s bottom edge and with both left edges aligned.
+- **topRight**: `anchoredElement` extends below `baseElement` with its top edge along `baseElement`'s bottom edge and with both right edges aligned.
+- **bottomLeft**: `anchoredElement` extends above `baseElement` with its bottom edge along `baseElement`'s top edge and with both left edges aligned.
+- **bottomRight**: `anchoredElement` extends above `baseElement` with its bottom edge along `baseElement`'s top edge and with both right edges aligned.
+- **leftTop**: `anchoredElement` extends to the right of `baseElement` with its left edge along `baseElement`'s right edge and with both top edges aligned.
+- **leftBottom**: `anchoredElement` extends the right of `baseElement` with its left edge along `baseElement`'s right edge and with both bottom edges aligned.
+- **rightTop**: `anchoredElement` extends to the left of `baseElement` with its right edge along `baseElement`'s left edge and with both top edges aligned.
+- **rightBottom**: `anchoredElement` extends to the left of `baseElement` with its right edge along `baseElement`'s left edge and with both bottom edges aligned.
 
-Based on these positions the visible area of `elem` inside the scroll tracker bounding box is calculated for each valid class.
+Based on these positions the visible area of `anchoredElement` inside the scroll tracker bounding box is calculated for each valid class.
 Valid classes are determined by grouping the classes into two groups and only looking at classes in the same group as the group that
 the current class is in. The first group contains: `topLeft`, `topRight`, `bottomLeft` and `bottomRight`. The second group are the
 remaining four classes: `leftTop`, `leftBottom`, `rightTop` and `rightBottom`.
@@ -201,7 +229,7 @@ The anchor class with the largest visible area is selected as the best anchor cl
 value of `anchorclass` is used. If the selected anchor class isn't the current anchor class the `callback` function is called to notify the
 application. It's up to the application to make any style changes to match the anchor class.
 
-To remove an anchor tracker use the function returned from this method.
+To remove an anchor tracker use the unregister function in the AnchorControl object returned from this method.
 
 ```javascript
 interface AnchorCallback {
@@ -220,32 +248,47 @@ interface AnchorClasses {
 }
 ```
 
+```javascript
+interface AnchorControl {
+    unregister: () => void;
+    enable: () => void;
+    disable: () => void;
+}
+```
+- **unregister** A method to remove the anchor tracker.
+
+- **enable** A method to enable the anchor tracker.
+
+- **disable** A method to disable the anchor tracker.
+
 
 ### Add Overflow Tracker
 
 ```javascript
-addOverflowTracker(containerElem: Element, elem: HTMLElement, overflowWidth: boolean, overflowHeight: boolean, callback: OverflowCallback): () => void
+addOverflowTracker(containerElement: Element, element: HTMLElement,
+	overflowWidth: boolean, overflowHeight: boolean, callback: OverflowCallback
+): OverflowControl
 ```
-- **containerElem** An element to track overflow in.
+- **containerElement** An element to track overflow in.
 
-- **elem** An element whose size is compared to `containerElem` to determine overflow.
+- **element** An element whose size is compared to `containerElement` to determine overflow.
 
 - **overflowWidth** A flag to indicate if the width can overflow.
 
 - **overflowHeight** A flag to indicate if the height can overflow.
 
-- **callback** A callback function called when `elem` overflows.
+- **callback** A callback function called when `element` overflows.
 
-Call this method to add an overflow tracker to the manager. The overflow tracker will monitor `containerElem` and
-`elem` to see if `elem`'s width and/or height is larger than `containerElem`'s client width and/or height. Width
+Call this method to add an overflow tracker to the manager. The overflow tracker will monitor `containerElement` and
+`element` to see if `element`'s width and/or height is larger than `containerElement`'s client width and/or height. Width
 is checked only if `overflowWidth` is true and height is checked only if `overflowHeight` is true.
 
-If the size of `elem` is overflowing `containerElem` the `callback` function will be called to notify the application of the 
+If the size of `element` is overflowing `containerElement` the `callback` function will be called to notify the application of the 
 unrestricted size.
 
 If the size stops overflowing, the `callback` function will be called once again to notify the application.
 
-To remove an overflow tracker from the manager use function returned from this method.
+To remove an overflow tracker from the manager use the unregister function in the OverflowControl object returned from this method.
 
 ```javascript
 interface OverflowCallback {
@@ -258,23 +301,38 @@ interface OverflowCallback {
 
 - **height** A number representing the full overflow height.
 
+```javascript
+interface OverflowControl {
+    unregister: () => void;
+    enable: () => void;
+    disable: () => void;
+}
+```
+- **unregister** A method to remove the overflow tracker.
+
+- **enable** A method to enable the overflow tracker.
+
+- **disable** A method to disable the overflow tracker.
+
 
 ### Scroll Top / Bottom / Left / Right
 
 ```javascript
-scrollLeft(key: string, coordOrElemOrSelector: Element | string | number, offset?: number)
+scrollLeft(key: string, coordOrElemOrSelector: Element | string | number, offset?: number, callback?: ScrollToCallback)
 
-scrollTop(key: string, coordOrElemOrSelector: Element | string | number, offset?: number)
+scrollTop(key: string, coordOrElemOrSelector: Element | string | number, offset?: number, callback?: ScrollToCallback)
 
-scrollRight(key: string, coordOrElemOrSelector: Element | string | number, offset?: number)
+scrollRight(key: string, coordOrElemOrSelector: Element | string | number, offset?: number, callback?: ScrollToCallback)
 
-scrollBottom(key: string, coordOrElemOrSelector: Element | string | number, offset?: number)
+scrollBottom(key: string, coordOrElemOrSelector: Element | string | number, offset?: number, callback?: ScrollToCallback)
 ```
 - **key** A key used to refer to the scroll tracker.
 
 - **coordOrElemOrSelector** Target to scroll to as a coordinate number, element or selector.
 
 - **offset** An optional offset from det target set by `coordOrElemOrSelector`.
+
+- **callback** A callback to perform the scrolling. Default scrolling will be used if not provided.
 
 Use one of these methods to position a scroll tracker at a target location. The target
 `coordOrElemOrSelector` can be a numeric coordinate in the scroll tracker, a DOM element or
@@ -289,17 +347,20 @@ Any stacked elements along an edge will be accounted for when positioning the sc
 If the `offset` parameter is provided then the target location will be shifted away from the
 scroll tracker edge the offset amount of pixels.
 
+If the `callback` parameter is provided no actual scrolling will be done by the scroll size manager.
 
 ### Scroll Into View
 
 ```javascript
-scrollIntoView(key: string, elemOrSelector: Element | string, offset?: number)
+scrollIntoView(key: string, elemOrSelector: Element | string, offset?: number, callback?: ScrollToCallback)
 ```
 - **key** A key used to refer to the scroll tracker.
 
 - **elemOrSelector** Target to scroll into view as an element or selector.
 
 - **offset** An optional offset from det target set by `elemOrSelector`.
+
+- **callback** A callback to perform the scrolling. Default scrolling will be used if not provided.
 
 Use this method to position a scroll tracker such that a DOM element becomes visible. If any
 edge of the element is outside the visible part of the scroll tracker container then the
@@ -314,6 +375,8 @@ Any stacked elements along an edge will be accounted for when positioning the sc
 
 If the `offset` parameter is provided then that many pixels will be added around the element
 when positioning the scroll tracker.
+
+If the `callback` parameter is provided no actual scrolling will be done by the scroll size manager.
 
 
 - - -

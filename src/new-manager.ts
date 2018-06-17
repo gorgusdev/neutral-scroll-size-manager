@@ -18,13 +18,13 @@ export class ScrollSizeManager {
     private hideNonFixedUpdate: boolean = false;
     private revealCounter: number = 0;
 
-    public startResizeTracking(): void {
+    public startResizeTracking() {
         this.unregisterResizeListener = domUtils.registerEventListener(window, 'resize', () => {
             this.updateResized(true);
         });
     }
 
-    public stopResizeTracking(): void {
+    public stopResizeTracking() {
         if(this.unregisterResizeListener) {
             this.unregisterResizeListener();
             this.unregisterResizeListener = undefined;
@@ -35,11 +35,11 @@ export class ScrollSizeManager {
         this.updateResized(false);
     }
 
-    public hideNonFixedWhileScrolling(hide: boolean): void {
+    public hideNonFixedWhileScrolling(hide: boolean) {
         this.hideNonFixedEnabled = hide;
     }
 
-    private updateResized(hideNonFixed: boolean): void {
+    private updateResized(hideNonFixed: boolean) {
         this.resized = true;
         if(hideNonFixed) {
             this.hideNonFixedUpdate = true;
@@ -54,7 +54,7 @@ export class ScrollSizeManager {
         fixedRightOffset?: string | number,
         fixedBottomOffset?: string | number,
         fixedLeftOffset?: string | number
-    ): void {
+    ) {
         const tracker = this.trackerRegistry.createTracker(key);
         tracker.register(element, (event: Event) => {
             const target = event.target || event.srcElement;
