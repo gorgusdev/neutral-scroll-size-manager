@@ -1,16 +1,22 @@
 {
 	"compilerOptions": {
-		"target": "es3",
-		"module": "commonjs",
+		"target": "es5",
+		"module": "es6",
+		"moduleResolution": "node",
+		"lib": ["dom", "scripthost", "es5", "es2015.iterable"],
+		"importHelpers": true,
 		"noImplicitAny": true,
+		"noImplicitThis": true,
+		"alwaysStrict": true,
 		"strictNullChecks": true,
+		"strictFunctionTypes": true,
+		"strictPropertyInitialization": true,
 		"removeComments": true,
 		"sourceMap": true,
 		"declaration": true,
 		"outDir": "js/"
 	},
 	"files": [
-		"./src/index.ts",
-		"./__debug__/debug.ts"
+		"./src/index.ts"
 	]
 }

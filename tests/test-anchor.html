@@ -1,0 +1,109 @@
+<html>
+    <head>
+        <title>Test Anchor</title>
+        <style>
+            * {
+                box-sizing: border-box;
+            }
+            html {
+                height: 100%;
+            }
+            body {
+                font-family: Arial, Helvetica, sans-serif;
+                font-size: 16px;
+                padding: 0;
+                margin: 0;
+                z-index: 0;
+                height: 100%;
+            }
+            p {
+                padding: 0px 10px;
+            }
+            .text-block {
+                flex: 0 0 800px;
+                width: 800px;
+            }
+            #root {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+            }
+            #anchor-container {
+                flex: 0 0 200px;
+                width: 200px;
+                position: relative;
+            }
+            #anchor-content {
+                border: 1px solid #000;
+                padding: 10px;
+            }
+            #anchor-pane {
+                border: 1px solid #000;
+                padding: 10px;
+                background-color: #888;
+                color: #fff;
+                position: absolute;
+            }
+            #anchor-pane.bottom-left {
+                bottom: 100%;
+                left: 0;
+                width: 150%;
+            }
+            #anchor-pane.top-left {
+                top: 100%;
+                left: 0;
+                width: 150%;
+            }
+            #anchor-pane.bottom-right {
+                bottom: 100%;
+                right: 0;
+                width: 150%;
+            }
+            #anchor-pane.top-right {
+                top: 100%;
+                right: 0;
+                width: 150%;
+            }
+        </style>
+        <script src="bundle.js"></script>
+    </head>
+    <body>
+        <div id="root">
+            <div class="text-block">
+                <p>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin leo massa, semper sit amet lacus id, feugiat maximus ante. Morbi erat lectus, rutrum sit amet placerat ut, viverra eget mi. Nulla semper ullamcorper nunc vitae mattis. Praesent id aliquet leo. Pellentesque sit amet nisl massa. Nullam at accumsan arcu, quis malesuada mi. Aliquam pulvinar non nisl eu vehicula. Mauris non nulla eu velit posuere tempus. Sed facilisis euismod consectetur. In elementum commodo neque, in lobortis tellus ultricies non. Vestibulum vitae tortor quis erat aliquam facilisis. Aliquam cursus accumsan ligula, ut fringilla eros vulputate non. Pellentesque et feugiat felis. Aenean porta ex nec purus commodo vestibulum. Quisque posuere justo leo, quis suscipit massa venenatis eu. Fusce fermentum urna diam, quis fermentum eros lacinia quis.
+                </p><p>
+                Fusce convallis lacus velit, ac interdum justo dictum nec. Vivamus gravida urna ac rutrum porta. Ut varius non neque ut finibus. Nulla vitae ex imperdiet, porta ex a, commodo eros. Sed ultrices suscipit nulla nec fringilla. Etiam malesuada massa a mauris gravida vestibulum. Integer a urna sapien. Pellentesque blandit mattis urna, id maximus lorem interdum a.
+                </p><p>
+                Sed ut sollicitudin elit. Nunc sit amet commodo mi. Mauris elementum id tortor non faucibus. Donec varius a augue non viverra. Pellentesque efficitur est est. Praesent non ante cursus, fringilla quam quis, facilisis dolor. Integer maximus justo non aliquam tristique. Proin eu justo vehicula, tristique nisi quis, tempor odio. Fusce facilisis sit amet erat et bibendum.
+                </p><p>
+                Nunc venenatis quis risus vitae commodo. Sed ornare metus sed massa efficitur tempus. Suspendisse potenti. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. In pulvinar neque vitae purus condimentum, at finibus velit rhoncus. Ut efficitur, lectus ut condimentum placerat, odio nibh dictum diam, in malesuada arcu nibh eget lectus. Cras interdum placerat iaculis. Donec sed rutrum augue. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Nam non ex ac turpis iaculis ultricies ut non mauris. Etiam a dui ornare, sodales tellus a, dignissim sapien. Donec euismod eros ut ante viverra commodo sed eu turpis. Praesent at luctus ante. Phasellus at commodo diam.
+                </p><p>
+                Curabitur fringilla rhoncus tellus, quis semper urna imperdiet ut. Fusce ac laoreet nisi. Duis in lacus quam. In suscipit rutrum ex, non laoreet velit hendrerit ac. Nulla tristique volutpat purus, finibus feugiat nisi dignissim vehicula. Aliquam iaculis eget arcu eget tempor. Nam quis arcu vel sem accumsan varius. Sed mauris magna, pretium vel vulputate non, iaculis eu diam. Aenean turpis odio, vulputate ac arcu pulvinar, auctor ultricies dui. Donec sed nisl sem. Curabitur iaculis tellus volutpat venenatis feugiat. Suspendisse lorem nibh, accumsan at risus non, tempor vehicula ipsum. Ut tristique diam at ligula consectetur, quis sodales nisi malesuada. In at purus at lorem bibendum malesuada. 
+                </p>
+            </div>
+            <div id="anchor-container">
+                <div id="anchor-content">
+                    Anchor Container
+                </div>
+                <div id="anchor-pane" class="top-left">
+                    Anchor Pane
+                </div>
+            </div>
+            <div class="text-block">
+                <p>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin leo massa, semper sit amet lacus id, feugiat maximus ante. Morbi erat lectus, rutrum sit amet placerat ut, viverra eget mi. Nulla semper ullamcorper nunc vitae mattis. Praesent id aliquet leo. Pellentesque sit amet nisl massa. Nullam at accumsan arcu, quis malesuada mi. Aliquam pulvinar non nisl eu vehicula. Mauris non nulla eu velit posuere tempus. Sed facilisis euismod consectetur. In elementum commodo neque, in lobortis tellus ultricies non. Vestibulum vitae tortor quis erat aliquam facilisis. Aliquam cursus accumsan ligula, ut fringilla eros vulputate non. Pellentesque et feugiat felis. Aenean porta ex nec purus commodo vestibulum. Quisque posuere justo leo, quis suscipit massa venenatis eu. Fusce fermentum urna diam, quis fermentum eros lacinia quis.
+                </p><p>
+                Fusce convallis lacus velit, ac interdum justo dictum nec. Vivamus gravida urna ac rutrum porta. Ut varius non neque ut finibus. Nulla vitae ex imperdiet, porta ex a, commodo eros. Sed ultrices suscipit nulla nec fringilla. Etiam malesuada massa a mauris gravida vestibulum. Integer a urna sapien. Pellentesque blandit mattis urna, id maximus lorem interdum a.
+                </p><p>
+                Sed ut sollicitudin elit. Nunc sit amet commodo mi. Mauris elementum id tortor non faucibus. Donec varius a augue non viverra. Pellentesque efficitur est est. Praesent non ante cursus, fringilla quam quis, facilisis dolor. Integer maximus justo non aliquam tristique. Proin eu justo vehicula, tristique nisi quis, tempor odio. Fusce facilisis sit amet erat et bibendum.
+                </p><p>
+                Nunc venenatis quis risus vitae commodo. Sed ornare metus sed massa efficitur tempus. Suspendisse potenti. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. In pulvinar neque vitae purus condimentum, at finibus velit rhoncus. Ut efficitur, lectus ut condimentum placerat, odio nibh dictum diam, in malesuada arcu nibh eget lectus. Cras interdum placerat iaculis. Donec sed rutrum augue. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Nam non ex ac turpis iaculis ultricies ut non mauris. Etiam a dui ornare, sodales tellus a, dignissim sapien. Donec euismod eros ut ante viverra commodo sed eu turpis. Praesent at luctus ante. Phasellus at commodo diam.
+                </p><p>
+                Curabitur fringilla rhoncus tellus, quis semper urna imperdiet ut. Fusce ac laoreet nisi. Duis in lacus quam. In suscipit rutrum ex, non laoreet velit hendrerit ac. Nulla tristique volutpat purus, finibus feugiat nisi dignissim vehicula. Aliquam iaculis eget arcu eget tempor. Nam quis arcu vel sem accumsan varius. Sed mauris magna, pretium vel vulputate non, iaculis eu diam. Aenean turpis odio, vulputate ac arcu pulvinar, auctor ultricies dui. Donec sed nisl sem. Curabitur iaculis tellus volutpat venenatis feugiat. Suspendisse lorem nibh, accumsan at risus non, tempor vehicula ipsum. Ut tristique diam at ligula consectetur, quis sodales nisi malesuada. In at purus at lorem bibendum malesuada. 
+                </p>
+            </div>
+        </div>
+        <script src="test-anchor.js"></script>
+    </body>
+</html>

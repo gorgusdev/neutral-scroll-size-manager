@@ -1,7 +1,11 @@
 .vscode
-js/__debug__/*
-js/__tests__/*
+cypress
+cypress.json
 coverage
 html-report
+tests
 tsconfig.json
+tslint.json
 npm-debug.log*
+rollup.config.js
+yarn.lock
