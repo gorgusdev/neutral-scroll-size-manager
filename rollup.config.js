@@ -1,7 +1,7 @@
 import resolve from 'rollup-plugin-node-resolve';
 
 export default {
-    input: 'js/index.js',
+    input: 'esm/index.js',
     output: {
         file: 'tests/bundle.js',
         name: 'Neutral',

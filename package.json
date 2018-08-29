@@ -2,8 +2,9 @@
   "name": "neutral-scroll-size-manager",
   "version": "1.0.0",
   "description": "A framework neutral client-side scroll and resize manager",
-  "main": "js/src/index.js",
-  "typings": "js/src/index.d.ts",
+  "main": "cjs/index.js",
+  "module": "esm/index.js",
+  "typings": "esm/index.d.ts",
   "repository": {
     "type": "git",
     "url": "https://github.com/gorgusdev/neutral-scroll-size-manager.git"
@@ -13,7 +14,8 @@
     "rollup": "rollup -c",
     "typescript": "tsc",
     "typescript-watch": "tsc -w",
-    "build": "npm-run-all -s typescript rollup",
+    "typescript-esm": "tsc --module commonjs --outDir cjs --declaration false",
+    "build": "npm-run-all -s typescript typescript-esm rollup",
     "prepublish": "yarn run build"
   },
   "keywords": [

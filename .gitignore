@@ -1,5 +1,7 @@
 node_modules/*
 js/*
+cjs/*
+esm/*
 coverage/*
 html-report/*
 npm-debug.log*

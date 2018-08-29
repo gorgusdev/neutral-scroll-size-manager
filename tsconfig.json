@@ -14,7 +14,7 @@
 		"removeComments": true,
 		"sourceMap": true,
 		"declaration": true,
-		"outDir": "js/"
+		"outDir": "esm/"
 	},
 	"files": [
 		"./src/index.ts"
