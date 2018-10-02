@@ -33,7 +33,7 @@ export class ScrollStackerBottom extends ScrollStacker {
             }
             if((winPos + winSize - offsetPos > this.limiter.top + this.stackHeight) && (winPos + winSize - offsetPos < this.limiter.bottom)) {
                 if((winPos + winSize - offsetPos < this.baseBottom) && (!useFixed || !this.canUseFixed || this.trackOffset || !this.stacked || restack)) {
-                    const offset = (winPos + winSize) - offsetPos - this.stackHeight;
+                    const offset = this.baseBottom - ((winPos + winSize) - offsetPos);
                     this.changed = true;
                     this.stacked = true;
                     this.offset = offset;
@@ -74,14 +74,10 @@ export class ScrollStackerBottom extends ScrollStacker {
                 if(this.useFixed) {
                     this.stackElement.style.bottom = this.fixedOffset.toFixed(0) + 'px';
                 } else {
-                    this.stackElement.style.top = this.offset.toFixed(0) + 'px';
+                    this.stackElement.style.bottom = this.offset.toFixed(0) + 'px';
                 }
             } else {
-                if(this.useFixed) {
-                    this.stackElement.style.bottom = '';
-                } else {
-                    this.stackElement.style.top = '';
-                }
+                this.stackElement.style.bottom = '';
             }
             this.callback(this.stacked, this.offset, this.useFixed, this.hidden, this.lastStacked);
         }

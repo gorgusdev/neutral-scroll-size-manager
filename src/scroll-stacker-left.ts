@@ -33,7 +33,7 @@ export class ScrollStackerLeft extends ScrollStacker {
             }
             if((winPos + offsetPos > this.limiter.left) && (winPos + offsetPos < this.limiter.right - this.stackWidth)) {
                 if((winPos + offsetPos > this.baseLeft) && (!useFixed || !this.canUseFixed || this.trackOffset || !this.stacked || restack)) {
-                    const offset = winPos + offsetPos;
+                    const offset = winPos + offsetPos - this.baseLeft;
                     this.changed = true;
                     this.stacked = true;
                     this.offset = offset;

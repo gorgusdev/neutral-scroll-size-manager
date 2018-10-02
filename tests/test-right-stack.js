@@ -11,7 +11,7 @@ manager.addRightStacker('ROOT', document.getElementById('first-container'), firs
     firstStack.setAttribute('data-last-stacked', '' + lastStacked);
 });
 var secondStack = document.getElementById('second-stack');
-manager.addRightStacker('ROOT', document.getElementById('second-container'), secondStack, '#second-limit', 0, '#second-container', true, false, function(stacked, offset, useFixed, hidden, lastStacked) {
+manager.addRightStacker('ROOT', document.getElementById('second-container'), secondStack, '#second-limit', 0, '#second-container', false, false, function(stacked, offset, useFixed, hidden, lastStacked) {
     if(stacked) {
         secondStack.className = 'stacked';
     } else {
