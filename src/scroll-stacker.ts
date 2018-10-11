@@ -1,3 +1,6 @@
+// Copyright (c) 2018 Göran Gustafsson. All rights reserved.
+// Licensed under the MIT License. See LICENSE file in the project root for full license information.
+
 import { ScrollLimiter } from './scroll-limiter';
 import { StackerCallback } from './scroll-size-manager-types';
 import * as domUtils from './dom-utils';

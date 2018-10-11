@@ -14,8 +14,8 @@
     "rollup": "rollup -c",
     "typescript": "tsc",
     "typescript-watch": "tsc -w",
-    "typescript-esm": "tsc --module commonjs --outDir cjs --declaration false",
-    "build": "npm-run-all -s typescript typescript-esm rollup",
+    "typescript-cjs": "tsc --module commonjs --outDir cjs --declaration false",
+    "build": "npm-run-all -s typescript typescript-cjs rollup",
     "prepublish": "yarn run build"
   },
   "keywords": [

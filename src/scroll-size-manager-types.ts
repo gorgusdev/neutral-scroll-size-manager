@@ -1,3 +1,6 @@
+// Copyright (c) 2018 Göran Gustafsson. All rights reserved.
+// Licensed under the MIT License. See LICENSE file in the project root for full license information.
+
 export type ScrollChangeListener = (x: number, y: number) => void;
 
 export type StackerCallback = (stacked: boolean, offset: number, useFixed: boolean, hidden: boolean, lastStacked: boolean) => void;

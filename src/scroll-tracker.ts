@@ -1,3 +1,6 @@
+// Copyright (c) 2018 Göran Gustafsson. All rights reserved.
+// Licensed under the MIT License. See LICENSE file in the project root for full license information.
+
 import * as domUtils from './dom-utils';
 import { ScrollLimiter } from './scroll-limiter';
 import { ScrollStacker } from './scroll-stacker';
@@ -250,8 +253,8 @@ export class ScrollTracker {
         const oldLeft = this.left;
         const oldTop = this.top;
         if(this.element === window) {
-            this.left = (window.pageXOffset || document.documentElement.scrollLeft);
-            this.top = (window.pageYOffset || document.documentElement.scrollTop);
+            this.left = (window.pageXOffset || document.documentElement!.scrollLeft);
+            this.top = (window.pageYOffset || document.documentElement!.scrollTop);
         } else if(this.element) {
             this.left = (<HTMLElement>this.element).scrollLeft;
             this.top = (<HTMLElement>this.element).scrollTop;
@@ -265,10 +268,10 @@ export class ScrollTracker {
 
     public updateResized() {
         if(this.element === window) {
-            this.left = window.pageXOffset || document.documentElement.scrollLeft;
-            this.top = window.pageYOffset || document.documentElement.scrollTop;
-            this.width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-            this.height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+            this.left = window.pageXOffset || document.documentElement!.scrollLeft;
+            this.top = window.pageYOffset || document.documentElement!.scrollTop;
+            this.width = window.innerWidth || document.documentElement!.clientWidth || document.body.clientWidth;
+            this.height = window.innerHeight || document.documentElement!.clientHeight || document.body.clientHeight;
         } else if(this.element) {
             this.left = (<HTMLElement>this.element).scrollLeft;
             this.top = (<HTMLElement>this.element).scrollTop;
@@ -586,8 +589,8 @@ export class ScrollTracker {
         if(domUtils.isWindow(element)) {
             boxTop = 0;
             boxHeight = this.height;
-            left = window.pageXOffset || document.documentElement.scrollLeft;
-            top = window.pageYOffset || document.documentElement.scrollTop;
+            left = window.pageXOffset || document.documentElement!.scrollLeft;
+            top = window.pageYOffset || document.documentElement!.scrollTop;
         } else {
             const boxRect = element.getBoundingClientRect();
             boxTop = boxRect.top;
@@ -628,8 +631,8 @@ export class ScrollTracker {
         if(domUtils.isWindow(element)) {
             boxTop = 0;
             boxHeight = this.height;
-            left = window.pageXOffset || document.documentElement.scrollLeft;
-            top = window.pageYOffset || document.documentElement.scrollTop;
+            left = window.pageXOffset || document.documentElement!.scrollLeft;
+            top = window.pageYOffset || document.documentElement!.scrollTop;
         } else {
             const boxRect = element.getBoundingClientRect();
             boxTop = boxRect.top;
@@ -670,8 +673,8 @@ export class ScrollTracker {
         if(domUtils.isWindow(element)) {
             boxLeft = 0;
             boxWidth = this.width;
-            left = window.pageXOffset || document.documentElement.scrollLeft;
-            top = window.pageYOffset || document.documentElement.scrollTop;
+            left = window.pageXOffset || document.documentElement!.scrollLeft;
+            top = window.pageYOffset || document.documentElement!.scrollTop;
         } else {
             const boxRect = element.getBoundingClientRect();
             boxLeft = boxRect.left;
@@ -712,8 +715,8 @@ export class ScrollTracker {
         if(domUtils.isWindow(element)) {
             boxLeft = 0;
             boxWidth = this.width;
-            left = window.pageXOffset || document.documentElement.scrollLeft;
-            top = window.pageYOffset || document.documentElement.scrollTop;
+            left = window.pageXOffset || document.documentElement!.scrollLeft;
+            top = window.pageYOffset || document.documentElement!.scrollTop;
         } else {
             const boxRect = element.getBoundingClientRect();
             boxLeft = boxRect.left;

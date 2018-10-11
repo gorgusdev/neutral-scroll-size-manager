@@ -1,3 +1,5 @@
+// Copyright (c) 2018 Göran Gustafsson. All rights reserved.
+// Licensed under the MIT License. See LICENSE file in the project root for full license information.
 
 // Polyfill the matches method on DOM elements.
 // Code from https://developer.mozilla.org/en-US/docs/Web/API/Element/matches
@@ -5,7 +7,7 @@ if (!Element.prototype.matches) {
     Element.prototype.matches =
         (<any>Element.prototype).matchesSelector ||
         (<any>Element.prototype).mozMatchesSelector ||
-        Element.prototype.msMatchesSelector ||
+        (<any>Element.prototype).msMatchesSelector ||
         (<any>Element.prototype).oMatchesSelector ||
         Element.prototype.webkitMatchesSelector ||
         function(this: any, s) {
