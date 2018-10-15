@@ -782,14 +782,30 @@ export class ScrollTracker {
         const elemWidth = rect.right - rect.left;
         offset = offset || 0;
         if(elemTop - offset < this.stackedTop) {
-            this.scrollTop(targetElement, offset, callback);
+            if(elemHeight <= boxHeight - this.stackedTop - this.stackedBottom) {
+                this.scrollTop(targetElement, offset, callback);
+            } else if(elemTop + elemHeight + offset < boxHeight - this.stackedBottom) {
+                this.scrollBottom(targetElement, offset, callback);
+            }
         } else if(elemTop + elemHeight + offset > boxHeight - this.stackedBottom) {
-            this.scrollBottom(targetElement, offset, callback);
+            if(elemHeight > boxHeight - this.stackedTop - this.stackedBottom) {
+                this.scrollTop(targetElement, offset, callback);
+            } else {
+                this.scrollBottom(targetElement, offset, callback);
+            }
         }
         if(elemLeft - offset < this.stackedLeft) {
-            this.scrollLeft(targetElement, offset, callback);
+            if(elemWidth <= boxWidth - this.stackedLeft - this.stackedRight) {
+                this.scrollLeft(targetElement, offset, callback);
+            } else if(elemLeft + elemWidth + offset < boxWidth - this.stackedRight) {
+                this.scrollRight(targetElement, offset, callback);
+            }
         } else if(elemLeft + elemWidth + offset > boxWidth - this.stackedRight) {
-            this.scrollRight(targetElement, offset, callback);
+            if(elemWidth > boxWidth - this.stackedLeft - this.stackedRight) {
+                this.scrollLeft(targetElement, offset, callback);
+            } else {
+                this.scrollRight(targetElement, offset, callback);
+            }
         }
     }
 

@@ -58,3 +58,9 @@ var scrollTo2 = document.getElementById('scroll-to2');
 scrollTo2.addEventListener('click', function() {
     manager.scrollIntoView('ROOT', scrollToTarget2, 15);
 });
+
+var scrollToTarget3 = document.getElementById('scroll-to-target3');
+var scrollTo3 = document.getElementById('scroll-to3');
+scrollTo3.addEventListener('click', function() {
+    manager.scrollIntoView('ROOT', scrollToTarget3, 15);
+});

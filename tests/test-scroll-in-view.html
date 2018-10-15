@@ -105,6 +105,15 @@
             #scroll-to-target1, #scroll-to-target2 {
                 color: cornflowerblue;
             }
+            #scroll-to-target3 {
+                position: absolute;
+                right: 20px;
+                top: 50px;
+                width: 50px;
+                height: 1200px;
+                opacity: 0.4;
+                background: cornflowerblue;
+            }
         </style>
         <script src="bundle.js"></script>
     </head>
@@ -112,7 +121,7 @@
         <div id="root">
             <div id="first-container">
                 <div id="first-stack">
-                    First Fixed Block <button id="scroll-to1">Scroll To 1</button> <button id="scroll-to2">Scroll To 2</button>
+                    First Fixed Block <button id="scroll-to1">Scroll To 1</button> <button id="scroll-to2">Scroll To 2</button> <button id="scroll-to3">Scroll To 3</button>
                 </div>
             </div>
             <div>
@@ -179,6 +188,7 @@
                     Fifth Fixed Block
                 </div>
             </div>
+            <div id="scroll-to-target3"></div>
         </div>
         <script src="test-scroll-in-view.js"></script>
     </body>
