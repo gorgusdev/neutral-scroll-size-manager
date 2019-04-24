@@ -92,6 +92,26 @@ interface ScrollChangeListener {
 ```
 
 
+### Add Resize Change Listener
+
+```javascript
+addResizeChangeListener(callback: ResizeChangeListener): () => void
+```
+- **callback** A callback function called on resize changes.
+
+Use this method to add a resize change callback. The callback will be called
+when the browser window changes size or when the `checkResizeFromStateChange`
+method is called.
+
+The method will return a function to remove the change listener.
+
+```javascript
+interface ResizeChangeListener {
+	(): void;
+}
+```
+
+
 ### Add Top / Bottom / Left / Right Stacker
 
 ```javascript

@@ -5,7 +5,7 @@ import { ScrollTrackerRegistry } from './scroll-tracker-registry';
 import { StackerLocation } from './scroll-tracker';
 import { OverflowTracker } from './overflow-tracker';
 import { AnchorClasses, AnchorCallback, AnchorControl } from './scroll-size-manager-types';
-import { ScrollChangeListener, StackerCallback, StackerControl, ScrollToCallback } from './scroll-size-manager-types';
+import { ScrollChangeListener, ResizeChangeListener, StackerCallback, StackerControl, ScrollToCallback } from './scroll-size-manager-types';
 import { OverflowCallback, OverflowControl } from './scroll-size-manager-types';
 import * as domUtils from './dom-utils';
 
@@ -14,6 +14,7 @@ const REVEAL_COUNTER_START = 10;
 export class ScrollSizeManager {
     private trackerRegistry: ScrollTrackerRegistry = new ScrollTrackerRegistry();
     private overflowTrackers: OverflowTracker[] = [];
+    private resizeChangeListeners: ResizeChangeListener[] = [];
     private unregisterResizeListener?: () => void = undefined;
     private hideNonFixedEnabled: boolean = false;
     private updateRequested: boolean = false;
@@ -82,6 +83,16 @@ export class ScrollSizeManager {
 
     public addScrollChangeListener(key: string, callback: ScrollChangeListener): () => void {
         return this.trackerRegistry.addScrollChangeListener(key, callback);
+    }
+
+    public addResizeChangeListener(callback: ResizeChangeListener): () => void {
+        this.resizeChangeListeners.push(callback);
+        return () => {
+            const index = this.resizeChangeListeners.indexOf(callback);
+            if(index >= 0) {
+                this.resizeChangeListeners.splice(index, 1);
+            }
+        };
     }
 
     public addAnchorTracker(
@@ -257,6 +268,11 @@ export class ScrollSizeManager {
             this.revealCounter = this.revealCounter - 1;
         }
         if(this.resized) {
+            const listeners = this.resizeChangeListeners.slice();
+            const count = listeners.length;
+            for(let n = 0; n < count; n++) {
+                listeners[n].call(undefined);
+            }
             if(this.trackerRegistry.updateResize(this.hideNonFixedEnabled && this.hideNonFixedUpdate)) {
                 this.revealCounter = REVEAL_COUNTER_START;
             }
