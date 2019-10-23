@@ -71,10 +71,14 @@ export function getStyleSheetValue(ruleSelector: string, propName: string): any 
         const sheet: CSSStyleSheet = <CSSStyleSheet>document.styleSheets.item(sheetIdx);
         if(sheet) {
             let rules: CSSRuleList;
-            if(sheet.cssRules) {
-                rules = sheet.cssRules;
-            } else {
-                rules = sheet.rules;
+            try {
+                if(sheet.cssRules) {
+                    rules = sheet.cssRules;
+                } else {
+                    rules = sheet.rules;
+                }
+            } catch(e) {
+                continue;
             }
             for(let ruleIdx = 0; ruleIdx < rules.length; ruleIdx++) {
                 const rule: CSSStyleRule = <CSSStyleRule>rules.item(ruleIdx);

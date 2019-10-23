@@ -106,8 +106,6 @@ export class ScrollTracker {
         stackerLocation: StackerLocation
     ): StackerControl {
         this.updateScrolled();
-        const winLeft = this.left;
-        const winTop = this.top;
         let limitElem: Element | null = null;
         if(limiterSelector) {
             limitElem = domUtils.findParentMatchingSelector(baseElement, limiterSelector);
@@ -124,7 +122,37 @@ export class ScrollTracker {
             }
         }
         const limiter = this.createLimiter(limitElem);
+        try {
+            return this.addStackerToCorrectList(
+                baseElement,
+                stackElement,
+                limiter,
+                stackWidth,
+                stackHeight,
+                canUseFixed,
+                trackOffset,
+                callback,
+                stackerLocation
+            );
+        } catch(e) {
+            this.destroyLimiter(limiter);
+            throw e;
+        }
+    }
 
+    private addStackerToCorrectList(
+        baseElement: Element,
+        stackElement: HTMLElement,
+        limiter: ScrollLimiter,
+        stackWidth: string|number,
+        stackHeight: string|number,
+        canUseFixed: boolean,
+        trackOffset: boolean,
+        callback: StackerCallback,
+        stackerLocation: StackerLocation
+    ): StackerControl {
+        const winLeft = this.left;
+        const winTop = this.top;
         switch(stackerLocation) {
             case StackerLocation.TOP:
                 return this.addStackerToList(new ScrollStackerTop(
