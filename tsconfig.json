@@ -11,6 +11,7 @@
 		"strictNullChecks": true,
 		"strictFunctionTypes": true,
 		"strictPropertyInitialization": true,
+		"skipLibCheck": true,
 		"removeComments": true,
 		"sourceMap": true,
 		"declaration": true,
